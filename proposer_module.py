@@ -54,7 +54,7 @@ class Proposer():
 		return self.leader_list[slot]
 		
 	def setLeader(self, slot, ID):
-		if len(self.leader_list) - 1 < slot:
+		while len(self.leader_list) - 1 < slot:
 			self.extend_leader_list()
 		self.leader_list[slot] = ID
 		
