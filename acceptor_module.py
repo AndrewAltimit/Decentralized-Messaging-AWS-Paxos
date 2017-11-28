@@ -58,8 +58,6 @@ class Acceptor():
 				self.promise(slot, source)
 		elif type == "ACCEPT":
 			pass
-		elif type == "TEST":
-			pass
 			
 	def promise(self, slot, dest):
 		acc_num, acc_val = self.acc_num_list[slot], self.acc_val_list[slot]
@@ -77,7 +75,7 @@ class Acceptor():
 			
 			# Send Message
 			msg = pickle.dumps(message)
-			self.sock.sendto(message, (dest_ip, dest_port))
+			self.sock.sendto(msg, (dest_ip, dest_port))
 		except:
 			pass
 		
@@ -113,3 +111,4 @@ class Acceptor():
 	def extend_acc_val_list(self):
 		size = len(self.acc_val_list)
 		self.acc_val_list.extend([None] * size)
+		

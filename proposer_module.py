@@ -78,9 +78,42 @@ class Proposer():
 	def insert_event(self, event):
 		# Get next available slot
 		slot = self.log.get_next_available_slot()
+		
+		# Send proposal
+		self.event_counter[slot] += 1
 		n = (self.event_counter[slot],self.ID)
 		self.propose(slot, n)
 		
+		# Wait for Promise Messages
+		current_time = time.time()
+		while ((time.time() - current_time) < TIMEOUT) and (len(self.get_promises(slot)) < self.majority_size):
+			time.sleep(.01)
+		responses = self.get_promises(slot)
+		
+		# If not enough responses received, return False as the insertion failed
+		if len(responses) < self.majority_size:
+			return False
+		
+		
+		# Filter out responses with null values
+		responses = list(filter(lambda x: (x[0] is not None) and (x[1] is not None), responses))
+		
+		# Send accept message
+		if len(responses) == 0:
+			self.accept(slot, n, event)
+		else:
+			responses.sort(key=lambda x: x[0])
+			self.accept(slot, n, responses[0][1]) 
+		
+		
+		# Wait for ACK Messages
+		#current_time = time.time()
+		#while ((time.time() - current_time) < TIMEOUT) and (len(self.get_promises(slot)) < self.majority_size):
+		#	time.sleep(.01)
+		#responses = self.get_promises(slot)
+		#
+		#return v == event
+
 		return True
 		
 		
@@ -98,6 +131,14 @@ class Proposer():
 	def commit(self, slot, event):
 		msg = {"TYPE": "COMMIT", "SLOT": slot, "EVENT": event}
 		self.send_all_learners(msg)
+		
+	# Return all promises on the message queue which correspond to slot
+	def get_promises(self, slot):
+		promises = []
+		for timestamp, msg in self.message_buffer:
+			if (msg["TYPE"] == "PROMISE") and (msg["SLOT"] == slot):
+				promises.append((msg["ACC_NUM"], msg["ACC_VAL"]))
+		return promises
 		
 	# Search the log for gaps of knowledge. Fill these in with Synod Algorithm
 	def fill_holes(self):

@@ -46,8 +46,6 @@ class Learner():
 		
 		if type == "COMMIT":
 			pass
-		elif type == "TEST":
-			pass
 			
 	# Given a destination IP and port, send a message
 	def send_msg(self, dest_ip, dest_port, message):
@@ -60,6 +58,6 @@ class Learner():
 			
 			# Send Message
 			msg = pickle.dumps(message)
-			self.sock.sendto(message, (dest_ip, dest_port))
+			self.sock.sendto(msg, (dest_ip, dest_port))
 		except:
 			pass

@@ -54,7 +54,7 @@ def message_test(proposer):
 	message = {"TYPE": "TEST"}
 	print("\n{:-^120} ".format("MESSAGE SENDING TEST"))
 	# Sending to all proposers
-	print("PROPOSER SENDING TO ALL ACCEPTORS...")
+	print("PROPOSER SENDING TO ALL PROPOSERS...")
 	proposer.send_all_proposers(message)
 	time.sleep(0.5)
 	
@@ -91,7 +91,7 @@ if __name__ == "__main__":
 	learner = learner_module.Learner(server_ID, all_servers, log)
 		
 	# Message Sending Test
-	#message_test(proposer)
+	message_test(proposer)
 		
 	# GUI - Terminate on Quit/Exit Command
 	valid_commands = ["tweet", "block", "unblock", "view", "servers", "exit"]
