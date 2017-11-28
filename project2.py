@@ -1,8 +1,10 @@
 import os, sys
+import pickle
 import log_module
 import proposer_module
 import acceptor_module
 import learner_module
+from event_module import *
 import time
 
 # Given a hosts file path, parse out server information and store internally in a dictionary
@@ -48,17 +50,22 @@ def show_commands(valid_commands):
 	
 
 ### Message Sending Test ###
-def message_test(proposer, message):
-	# Sending to all acceptors
-	time.sleep(0.5)
+def message_test(proposer):
+	message = {"TYPE": "TEST"}
 	print("\n{:-^120} ".format("MESSAGE SENDING TEST"))
-	print("PROPOSER SENDING TO ALL ACCEPTORS:")
-	proposer.send_all_acceptors(message.encode("utf-8"))
+	# Sending to all proposers
+	print("PROPOSER SENDING TO ALL ACCEPTORS...")
+	proposer.send_all_proposers(message)
+	time.sleep(0.5)
+	
+	# Sending to all acceptors
+	print("\nPROPOSER SENDING TO ALL ACCEPTORS...")
+	proposer.send_all_acceptors(message)
 	time.sleep(0.5)
 	
 	# Sending to all learners
-	print("\nPROPOSER SENDING TO ALL LEARNERS:")
-	proposer.send_all_learners(message.encode("utf-8"))
+	print("\nPROPOSER SENDING TO ALL LEARNERS...")
+	proposer.send_all_learners(message)
 	time.sleep(0.5)
 	print("-" * 120)
 	
@@ -72,6 +79,9 @@ if __name__ == "__main__":
 	all_servers = parse_config(hosts_filename)
 	show_server_config(all_servers)
 	
+	# Extract username for this server
+	username = all_servers[server_ID]["USERNAME"]
+	
 	# Initialize the log
 	log = log_module.Log("log")
 	
@@ -81,13 +91,13 @@ if __name__ == "__main__":
 	learner = learner_module.Learner(server_ID, all_servers, log)
 		
 	# Message Sending Test
-	message_test(proposer, "test")
+	message_test(proposer)
 		
 	# GUI - Terminate on Quit/Exit Command
 	valid_commands = ["tweet", "block", "unblock", "view", "servers", "exit"]
 	show_commands(valid_commands)
 	while True:
-		text = input("Enter text: ")
+		text = input("Server {} => ".format(server_ID))
 		if text.strip() == "":
 			continue
 
@@ -105,8 +115,11 @@ if __name__ == "__main__":
 			pass
 
 		elif command == "tweet":
-			pass
-			
+			# Repeatedly run the synod algorithm until successful
+			event = Tweet(username, " ".join(parsed_text))
+			while not proposer.insert_event(event):
+				continue
+				
 		elif command == "block":
 			pass
 			

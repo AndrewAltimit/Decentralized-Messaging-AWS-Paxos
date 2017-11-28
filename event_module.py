@@ -45,6 +45,10 @@ class Tweet():
 	# Return self since already unpacked
 	def unpack(self):
 		return self
+		
+	# Return the username which created this object
+	def get_username(self):
+		return self.username
 
 		
 # Insert Block Object
@@ -75,6 +79,10 @@ class InsertBlock():
 	def unpack(self):
 		return self
 		
+	# Return the username which created this object
+	def get_username(self):
+		return self.username
+		
 # Delete Block Object
 class DeleteBlock():
 	# username = user who initiated block
@@ -102,55 +110,7 @@ class DeleteBlock():
 	# Return self since already unpacked
 	def unpack(self):
 		return self
-
-
-# Event Record Class
-class EventRecord():
-	# Possible OP types: Tweet, InsertBlock, DeleteBlock
-	def __init__(self, operation, time, node):
-		self.op = operation
-		self.time = int(time)
-		self.node = int(node)
 		
-
-	# Return a string representation of the event record
-	def __str__(self):
-		return "Node: {:<2} Time: {} OP: {} -> {} ".format(self.node  + 1, self.time, self.get_formatted_type(), str(self.op))
-
-	# Given two event records, determine whether they are equal or not
-	# Note that we stricly use the operation, the time (lamport timestamp), and source node. No two unique events should share these
-	def __eq__(self, other):
-		return isinstance(other, EventRecord) and (self.op == other.op and self.time == other.time and self.node == other.node)
-
-	# Return the hash for an event record object
-	# Hashed from a unique identifier
-	def __hash__(self):
-		return hash("{}::{}::{}".format(hash(self.op), self.node, self.time))
-
-	# Return OP object type
-	def get_type(self):
-		return type(self.op)
-		
-	# Return the operation for this event record
-	def get_operation(self):
-		return self.op
-		
-	# Return the username which created this event record
+	# Return the username which created this object
 	def get_username(self):
-		return self.op.username
-		
-	# Return OP object type as a formatted string
-	def get_formatted_type(self):
-		object_type = str(self.get_type()).split(".")[-1]
-		return object_type.split("'")[0]
-		
-	# Return whether OP is a certain object type
-	def is_type(self, object_type):
-		return self.get_type() is object_type
-		
-	# Unpack EventRecord (as an operation)
-	def unpack(self):
-		return self.op
-		
-		
-
+		return self.username
