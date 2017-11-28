@@ -54,7 +54,7 @@ class Acceptor():
 			slot = msg["SLOT"]
 			n = msg["N"]
 			if (self.max_prepare_list[slot] is None) or (n > self.max_prepare_list[slot]):
-				self.max_prepare_list[slot] = n
+				self.set_max_prepare(slot, n)
 				self.promise(slot, source)
 		elif type == "ACCEPT":
 			pass
@@ -80,6 +80,24 @@ class Acceptor():
 			self.sock.sendto(message, (dest_ip, dest_port))
 		except:
 			pass
+		
+	# Given a slot and value, update the max prepare array
+	def set_max_prepare(self, slot, n):
+		while len(self.max_prepare_list) - 1 < slot:
+			self.extend_max_prepare_list()
+		self.max_prepare_list[slot] = n
+		
+	# Given a slot and value, update the acc num array
+	def set_acc_num(self, slot, n):
+		while len(self.acc_num_list) - 1 < slot:
+			self.extend_acc_num_list()
+		self.acc_num_list[slot] = n
+		
+	# Given a slot and value, update the acc val array
+	def set_acc_val(self, slot, v):
+		while len(self.acc_val_list) - 1 < slot:
+			self.extend_acc_val_list()
+		self.acc_val_list[slot] = v
 			
 	# Extend the Max Prepare list to twice it's size
 	def extend_max_prepare_list(self):
