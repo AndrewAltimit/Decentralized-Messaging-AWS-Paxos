@@ -91,7 +91,7 @@ if __name__ == "__main__":
 	learner = learner_module.Learner(server_ID, all_servers, log)
 		
 	# Message Sending Test
-	message_test(proposer)
+	#message_test(proposer)
 		
 	# GUI - Terminate on Quit/Exit Command
 	valid_commands = ["tweet", "block", "unblock", "view", "servers", "exit"]

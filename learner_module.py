@@ -5,14 +5,18 @@ import pickle
 from event_module import *
 
 
-# Proposer Class
+# Learner Class
 class Learner():
 	def __init__(self, ID, server_config, log):
 		self.ID = ID
 		self.server_config = server_config
+		self.log = log
+		
+		# IP/Port Configuration for this Learner
 		self.IP = server_config[ID]["IP"]
 		self.port = server_config[ID]["LEARNER_PORT"]
-		self.log = log
+
+		# Start listening thread for incoming messages
 		_thread.start_new_thread(self.listen, ())
 
 		

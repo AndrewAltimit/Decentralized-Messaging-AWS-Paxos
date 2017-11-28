@@ -175,7 +175,7 @@ class Proposer():
 			dest_port = self.server_config[ID]["LEARNER_PORT"]
 			self.send_msg(dest_ip, dest_port, message)
 			
-	# Garbage Collectionfor Message Buffer
+	# Garbage Collection for Message Buffer
 	def message_buffer_garbage_collector(self):
 		while True:
 			# Remove expired messages from the front of the queue
