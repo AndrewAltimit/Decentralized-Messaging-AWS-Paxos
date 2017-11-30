@@ -1,6 +1,8 @@
 import os, sys
 from event_module import *
 import _thread
+import pickle
+
 
 ARRAY_INIT_SIZE = 8
 
@@ -18,12 +20,41 @@ class Log():
 		
 		
 	def load_log(self):
-		pass
+
+		self.events_log = [None] * ARRAY_INIT_SIZE
+
+		# open the file of current server for write, hardcoded as 1
+		f = open(self.filename, 'rb')
+		
+		while True:
+			# unpickle each pickle container until reach the end
+		    try:
+		        slot, event = pickle.load(f)
+
+		        # extend events_log when needed
+		        while len(self.events_log) - 1 < slot:
+		        	self.extend_events_log()
+		        self.events_log[slot] = event
+
+		    except EOFError:
+		        break
+
+		f.close()
+		
 		
 	def write(self, slot, event):
 		username = event.get_username()
 		with self.lock:
-			pass # Write to file
+			# Write to file
+
+			# open the file of current server for write in append mode
+			f = open(self.filename, 'ab')
+			# write in (slot, event_obj)
+			pickle.dump((slot,event), f)
+			
+			f.close()
+
+
 		
 	def get_entry(self, slot):
 		return self.events_log[slot]
