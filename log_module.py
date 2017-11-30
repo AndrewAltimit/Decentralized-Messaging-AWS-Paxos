@@ -38,11 +38,7 @@ class Log():
 		f.close()
 		
 		
-	def write(self, slot, event):
-		# Do not write to the log if it is already present
-		if self.get_entry(slot) is not None:
-			return
-			
+	def write(self, slot, event):			
 		with self.lock:
 			# Write to file
 			# open the file of current server for write in append mode
@@ -60,6 +56,10 @@ class Log():
 		return self.events_log[slot]
 		
 	def set_entry(self, slot, event):
+		# Do not write to the log if it is already present
+		if self.get_entry(slot) is not None:
+			return
+			
 		# Add event to in-memory data structure
 		while len(self.events_log) - 1 < slot:
 			self.extend_events_log()
