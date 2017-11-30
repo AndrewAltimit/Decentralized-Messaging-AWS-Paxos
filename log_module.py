@@ -42,6 +42,7 @@ class Log():
 		# Do not write to the log if it is already present
 		if self.get_entry(slot) is not None:
 			return
+			
 		with self.lock:
 			# Write to file
 			# open the file of current server for write in append mode

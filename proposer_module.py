@@ -9,7 +9,7 @@ import time
 ARRAY_INIT_SIZE = 8
 
 # Max amount of time allowed for expected incoming messages
-TIMEOUT = 2
+TIMEOUT = 5
 
 # Time between each garbage collection procedure on the message buffer (remove expired messages)
 GARBAGE_COLLECT_FREQ = TIMEOUT * 3
@@ -78,6 +78,7 @@ class Proposer():
 	def insert_event(self, event):
 		# Get next available slot
 		slot = self.log.get_next_available_slot()
+		print("Trying to fill in this slot:", slot)
 		
 		# Send proposal
 		self.event_counter[slot] += 1

@@ -47,7 +47,7 @@ class Learner():
 		if type == "COMMIT":
 			slot = msg["SLOT"]
 			event = msg["EVENT"]
-			self.log.write(slot, event)
+			self.log.set_entry(slot, event)
 			
 	# Given a destination IP and port, send a message
 	def send_msg(self, dest_ip, dest_port, message):
