@@ -119,7 +119,7 @@ if __name__ == "__main__":
 			event = Tweet(username, " ".join(parsed_text))
 			while not proposer.insert_event(event):
 				print("Failure to tweet, retrying in 30 seconds.")
-				time.sleep(10)
+				time.sleep(1)
 				
 		elif command == "block":
 			pass
