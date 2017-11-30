@@ -9,7 +9,7 @@ import time
 ARRAY_INIT_SIZE = 8
 
 # Max amount of time allowed for expected incoming messages
-TIMEOUT = 5
+TIMEOUT = 2
 
 # Time between each garbage collection procedure on the message buffer (remove expired messages)
 GARBAGE_COLLECT_FREQ = TIMEOUT * 3
@@ -98,23 +98,34 @@ class Proposer():
 		# Filter out responses with null values
 		responses = list(filter(lambda x: (x[0] is not None) and (x[1] is not None), responses))
 		
-		# Send accept message
+		# Determine v to use
 		if len(responses) == 0:
-			self.accept(slot, n, event)
+			v = event
 		else:
 			responses.sort(key=lambda x: x[0])
-			self.accept(slot, n, responses[0][1]) 
+			v = responses[0][1] 
+			
+		# Send accept message
+		self.accept(slot, n, v) 
 		
 		
 		# Wait for ACK Messages
-		#current_time = time.time()
-		#while ((time.time() - current_time) < TIMEOUT) and (len(self.get_promises(slot)) < self.majority_size):
-		#	time.sleep(.01)
-		#responses = self.get_promises(slot)
-		#
-		#return v == event
-
-		return True
+		current_time = time.time()
+		while ((time.time() - current_time) < TIMEOUT) and (len(self.get_acks(slot)) < self.majority_size):
+			time.sleep(.01)
+		responses = self.get_acks(slot)
+		
+		# If not enough responses received, return False as the insertion failed
+		if len(responses) < self.majority_size:
+			return False
+		
+		# Send commit message
+		self.commit(slot, v)
+		
+		# Return True / False depending on whether the value commited 
+		# was the original event we were trying to insert
+		
+		return v == event
 		
 		
 	# Send propose message to all acceptors
@@ -139,6 +150,14 @@ class Proposer():
 			if (msg["TYPE"] == "PROMISE") and (msg["SLOT"] == slot):
 				promises.append((msg["ACC_NUM"], msg["ACC_VAL"]))
 		return promises
+		
+	# Return all acks on the message queue which correspond to slot
+	def get_acks(self, slot):
+		acks = []
+		for timestamp, msg in self.message_buffer:
+			if (msg["TYPE"] == "ACK") and (msg["SLOT"] == slot):
+				acks.append((msg["ACC_NUM"], msg["ACC_VAL"]))
+		return acks
 		
 	# Search the log for gaps of knowledge. Fill these in with Synod Algorithm
 	def fill_holes(self):

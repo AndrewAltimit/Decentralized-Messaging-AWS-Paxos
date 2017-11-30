@@ -22,7 +22,7 @@ class Log():
 		
 	def write(self, slot, event):
 		username = event.get_username()
-		with self.log_lock:
+		with self.lock:
 			pass # Write to file
 		
 	def get_entry(self, slot):

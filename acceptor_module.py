@@ -57,11 +57,28 @@ class Acceptor():
 				self.set_max_prepare(slot, n)
 				self.promise(slot, source)
 		elif type == "ACCEPT":
-			pass
+			slot = msg["SLOT"]
+			n = msg["N"]
+			# Determine whether to send an ack message and update state
+			if n >= self.max_prepare_list[slot]:
+				v = msg["EVENT"]
+				self.set_acc_num(slot, n)
+				self.set_acc_val(slot, v)
+				self.set_max_prepare(slot, n)
+				
+				# Send an ack message
+				self.ack(slot, source)
 			
 	def promise(self, slot, dest):
 		acc_num, acc_val = self.acc_num_list[slot], self.acc_val_list[slot]
 		msg = {"TYPE": "PROMISE", "SLOT": slot, "ACC_NUM": acc_num, "ACC_VAL": acc_val}
+		self.send_msg(dest[0], dest[1], msg)
+		
+		
+	# Send an ack message
+	def ack(self, slot, dest):
+		acc_num, acc_val = self.acc_num_list[slot], self.acc_val_list[slot]
+		msg = {"TYPE": "ACK", "SLOT": slot, "ACC_NUM": acc_num, "ACC_VAL": acc_val}
 		self.send_msg(dest[0], dest[1], msg)
 			
 	# Given a destination IP and port, send a message
