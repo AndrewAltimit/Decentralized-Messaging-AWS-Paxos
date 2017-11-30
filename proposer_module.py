@@ -83,6 +83,7 @@ class Proposer():
 		# Send proposal
 		self.increment_event_counter(slot)
 		n = (self.event_counter[slot],self.ID)
+		print("Proposal Number:", n)
 		self.propose(slot, n)
 		
 		# Wait for Promise Messages
@@ -103,7 +104,7 @@ class Proposer():
 			v = event
 		else:
 			responses.sort(key=lambda x: x[0])
-			v = responses[0][1] 
+			v = responses[-1][1] 
 			
 		# Send accept message
 		self.accept(slot, n, v) 

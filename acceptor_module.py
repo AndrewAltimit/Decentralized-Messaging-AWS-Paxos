@@ -53,14 +53,14 @@ class Acceptor():
 		if type == "PROPOSE":
 			slot = msg["SLOT"]
 			n = msg["N"]
-			if (self.max_prepare_list[slot] is None) or (n > self.max_prepare_list[slot]):
+			if (self.get_max_prepare(slot) is None) or (n > self.get_max_prepare(slot)):
 				self.set_max_prepare(slot, n)
 				self.promise(slot, source)
 		elif type == "ACCEPT":
 			slot = msg["SLOT"]
 			n = msg["N"]
 			# Determine whether to send an ack message and update state
-			if n >= self.max_prepare_list[slot]:
+			if n >= self.get_max_prepare(slot):
 				v = msg["EVENT"]
 				self.set_acc_num(slot, n)
 				self.set_acc_val(slot, v)
@@ -70,14 +70,15 @@ class Acceptor():
 				self.ack(slot, source)
 			
 	def promise(self, slot, dest):
-		acc_num, acc_val = self.acc_num_list[slot], self.acc_val_list[slot]
+		acc_num = self.get_acc_num(slot)
+		acc_val = self.get_acc_val(slot)
 		msg = {"TYPE": "PROMISE", "SLOT": slot, "ACC_NUM": acc_num, "ACC_VAL": acc_val}
 		self.send_msg(dest[0], dest[1], msg)
 		
 		
 	# Send an ack message
 	def ack(self, slot, dest):
-		acc_num, acc_val = self.acc_num_list[slot], self.acc_val_list[slot]
+		acc_num, acc_val = self.get_acc_num(slot), self.get_acc_val(slot)
 		msg = {"TYPE": "ACK", "SLOT": slot, "ACC_NUM": acc_num, "ACC_VAL": acc_val}
 		self.send_msg(dest[0], dest[1], msg)
 			
@@ -96,6 +97,26 @@ class Acceptor():
 		except:
 			pass
 		
+		
+	def get_max_prepare(self, slot):
+		# Return None if the slot is out of bounds (even definitely not present)
+		if slot >= len(self.max_prepare_list):
+			return None
+		return self.max_prepare_list[slot]		
+	
+	
+	def get_acc_num(self, slot):
+		# Return None if the slot is out of bounds (even definitely not present)
+		if slot >= len(self.acc_num_list):
+			return None
+		return self.acc_num_list[slot]
+		
+	def get_acc_val(self, slot):
+		# Return None if the slot is out of bounds (even definitely not present)
+		if slot >= len(self.acc_val_list):
+			return None
+		return self.acc_val_list[slot]
+	
 	# Given a slot and value, update the max prepare array
 	def set_max_prepare(self, slot, n):
 		while len(self.max_prepare_list) - 1 < slot:

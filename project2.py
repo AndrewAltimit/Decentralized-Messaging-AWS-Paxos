@@ -83,7 +83,7 @@ if __name__ == "__main__":
 	username = all_servers[server_ID]["USERNAME"]
 	
 	# Initialize the log
-	log = log_module.Log("log")
+	log = log_module.Log("server_{}.log".format(server_ID))
 	
 	# Create proposer, acceptor, and learner
 	proposer = proposer_module.Proposer(server_ID, all_servers, log)
