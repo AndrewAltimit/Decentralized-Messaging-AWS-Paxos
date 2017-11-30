@@ -81,7 +81,7 @@ class Proposer():
 		print("Trying to fill in this slot:", slot)
 		
 		# Send proposal
-		self.increment_event_counter()
+		self.increment_event_counter(slot)
 		n = (self.event_counter[slot],self.ID)
 		self.propose(slot, n)
 		
@@ -187,7 +187,7 @@ class Proposer():
 		self.leader_list.extend([None] * size)
 		
 	# Increment event counter for a particular slot
-	def increment_event_counter(self, slot, ID):
+	def increment_event_counter(self, slot):
 		while len(self.event_counter) - 1 < slot:
 			self.extend_event_counter_list()
 		self.event_counter[slot] += 1
