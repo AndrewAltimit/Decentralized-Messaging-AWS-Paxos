@@ -45,7 +45,9 @@ class Learner():
 		print("{:<40} {:<40} {:<40}".format(s1, s2, s3))
 		
 		if type == "COMMIT":
-			pass
+			slot = msg["SLOT"]
+			event = msg["EVENT"]
+			self.log.write(slot, event)
 			
 	# Given a destination IP and port, send a message
 	def send_msg(self, dest_ip, dest_port, message):

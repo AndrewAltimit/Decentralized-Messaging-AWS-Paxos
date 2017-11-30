@@ -13,16 +13,12 @@ class Log():
 		self.lock = _thread.allocate_lock()
 	
 		# Initialize log if no local copy exists, otherwise recover from file
+		self.events_log = [None] * ARRAY_INIT_SIZE
 		if os.path.isfile(self.filename):
 			self.load_log()
-		else:
-			self.events_log = [None] * ARRAY_INIT_SIZE
 		
 		
 	def load_log(self):
-
-		self.events_log = [None] * ARRAY_INIT_SIZE
-
 		# open the file of current server for write, hardcoded as 1
 		f = open(self.filename, 'rb')
 		
@@ -43,20 +39,23 @@ class Log():
 		
 		
 	def write(self, slot, event):
-		username = event.get_username()
+		# Do not write to the log if it is already present
+		if self.get_entry(slot) is not None:
+			return
 		with self.lock:
 			# Write to file
-
 			# open the file of current server for write in append mode
 			f = open(self.filename, 'ab')
 			# write in (slot, event_obj)
 			pickle.dump((slot,event), f)
-			
 			f.close()
 
 
 		
 	def get_entry(self, slot):
+		# Return None if the slot is outside of log bounds (even definitely not present)
+		if slot >= len(self.events_log):
+			return None
 		return self.events_log[slot]
 		
 	def set_entry(self, slot, event):
@@ -77,5 +76,4 @@ class Log():
 		for i in range(len(self.events_log) - 1, -1, -1):
 			if self.events_log[i] is not None:
 				return i + 1
-				
 		return 0
