@@ -94,7 +94,6 @@ class Proposer():
 		if len(responses) < self.majority_size:
 			return False
 		
-		
 		# Filter out responses with null values
 		responses = list(filter(lambda x: (x[0] is not None) and (x[1] is not None), responses))
 		
@@ -107,7 +106,6 @@ class Proposer():
 			
 		# Send accept message
 		self.accept(slot, n, v) 
-		
 		
 		# Wait for ACK Messages
 		current_time = time.time()
