@@ -98,7 +98,11 @@ class Proposer():
 		
 		# If not enough responses received, return False as the insertion failed
 		if len(responses) < self.majority_size:
+			print("[PROPOSER] Failure to receive majority of promise messages")
 			return False
+		
+		# Display received messages
+		self.display_promise_messages(responses)
 		
 		# Filter out responses with null values
 		responses = list(filter(lambda x: (x[0] is not None) and (x[1] is not None), responses))
@@ -121,6 +125,7 @@ class Proposer():
 		
 		# If not enough responses received, return False as the insertion failed
 		if len(responses) < self.majority_size:
+			print("[PROPOSER] Failure to receive majority of ACK messages")
 			return False
 		
 		# Send commit message
@@ -248,3 +253,10 @@ class Proposer():
 				self.message_buffer.pop(0)
 			# Wait before running garbage collection again	
 			time.sleep(GARBAGE_COLLECT_FREQ)
+			
+	def display_promise_messages(self, messages):
+		output = "[PROPOSER] Received a majority of promise messages:"
+		for acc_num, acc_val in messages:
+			output += " ({},{})".format(acc_num, acc_val)
+		print(output)
+			
