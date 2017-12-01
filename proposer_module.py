@@ -12,7 +12,7 @@ ARRAY_INIT_SIZE = 8
 TIMEOUT = 1
 
 # Time between each garbage collection procedure on the message buffer (remove expired messages)
-GARBAGE_COLLECT_FREQ = TIMEOUT * 2
+GARBAGE_COLLECT_FREQ = TIMEOUT * 3
 
 # Proposer Class
 class Proposer():

@@ -72,7 +72,7 @@ class Log():
 			if type(entry) == InsertBlock:
 				self.blocks.add(entry)
 			elif type(entry) == DeleteBlock:
-				self.blocks.remove(entry.convert_to_IB())
+				self.blocks -= set([entry.convert_to_IB()])
 
 
 		
@@ -106,7 +106,7 @@ class Log():
 		elif type(event) == InsertBlock:
 			self.blocks.add(event)
 		elif type(event) == DeleteBlock:
-			self.blocks.remove(event.convert_to_IB())
+			self.blocks -= set([event.convert_to_IB()])
 	
 	def extend_events_log(self):
 		size = len(self.events_log)
