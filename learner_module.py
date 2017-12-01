@@ -15,6 +15,9 @@ class Learner():
 		# IP/Port Configuration for this Learner
 		self.IP = server_config[ID]["IP"]
 		self.port = server_config[ID]["LEARNER_PORT"]
+		
+		# Persistent Sending Socket
+		self.send_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
 
 		# Start listening thread for incoming messages
 		_thread.start_new_thread(self.listen, ())
@@ -27,7 +30,9 @@ class Learner():
 			self.sock.bind((self.IP, self.port))
 			while True:
 				msg, source = self.sock.recvfrom(4096)
-				self.process_message(msg, source)
+				
+				# Process message on a thread
+				_thread.start_new_thread(self.process_message, (msg, source,))
 				
 		except:
 			# Restart listening thread
@@ -60,6 +65,6 @@ class Learner():
 			
 			# Send Message
 			msg = pickle.dumps(message)
-			self.sock.sendto(msg, (dest_ip, dest_port))
+			self.send_sock.sendto(msg, (dest_ip, dest_port))
 		except:
 			pass

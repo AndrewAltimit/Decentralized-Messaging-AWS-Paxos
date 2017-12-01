@@ -114,3 +114,6 @@ class DeleteBlock():
 	# Return the username which created this object
 	def get_username(self):
 		return self.username
+		
+	def convert_to_IB(self):
+		return InsertBlock(self.username, self.follower)

@@ -22,6 +22,9 @@ class Acceptor():
 		self.acc_num_list     = [None] * ARRAY_INIT_SIZE
 		self.acc_val_list     = [None] * ARRAY_INIT_SIZE
 		
+		# Persistent Sending Socket
+		self.send_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
+		
 		# Start listening thread for incoming messages
 		_thread.start_new_thread(self.listen, ())
 
@@ -33,7 +36,9 @@ class Acceptor():
 			self.sock.bind((self.IP, self.port))
 			while True:
 				msg, source = self.sock.recvfrom(4096)
-				self.process_message(msg, source)
+				
+				# Process message on a thread
+				_thread.start_new_thread(self.process_message, (msg, source,))
 				
 		except:
 			# Restart listening thread
@@ -55,6 +60,7 @@ class Acceptor():
 			n = msg["N"]
 			if (self.get_max_prepare(slot) is None) or (n > self.get_max_prepare(slot)):
 				self.set_max_prepare(slot, n)
+				source = (source[0], self.server_config[msg["ID"]]["PROPOSER_PORT"])
 				self.promise(slot, source)
 		elif type == "ACCEPT":
 			slot = msg["SLOT"]
@@ -65,21 +71,21 @@ class Acceptor():
 				self.set_acc_num(slot, n)
 				self.set_acc_val(slot, v)
 				self.set_max_prepare(slot, n)
-				
+				source = (source[0], self.server_config[msg["ID"]]["PROPOSER_PORT"])
 				# Send an ack message
 				self.ack(slot, source)
 			
 	def promise(self, slot, dest):
 		acc_num = self.get_acc_num(slot)
 		acc_val = self.get_acc_val(slot)
-		msg = {"TYPE": "PROMISE", "SLOT": slot, "ACC_NUM": acc_num, "ACC_VAL": acc_val}
+		msg = {"TYPE": "PROMISE", "SLOT": slot, "ACC_NUM": acc_num, "ACC_VAL": acc_val, "ID": self.ID}
 		self.send_msg(dest[0], dest[1], msg)
 		
 		
 	# Send an ack message
 	def ack(self, slot, dest):
 		acc_num, acc_val = self.get_acc_num(slot), self.get_acc_val(slot)
-		msg = {"TYPE": "ACK", "SLOT": slot, "ACC_NUM": acc_num, "ACC_VAL": acc_val}
+		msg = {"TYPE": "ACK", "SLOT": slot, "ACC_NUM": acc_num, "ACC_VAL": acc_val, "ID": self.ID}
 		self.send_msg(dest[0], dest[1], msg)
 			
 	# Given a destination IP and port, send a message
@@ -93,7 +99,7 @@ class Acceptor():
 			
 			# Send Message
 			msg = pickle.dumps(message)
-			self.sock.sendto(msg, (dest_ip, dest_port))
+			self.send_sock.sendto(msg, (dest_ip, dest_port))
 		except:
 			pass
 		
@@ -149,4 +155,5 @@ class Acceptor():
 	def extend_acc_val_list(self):
 		size = len(self.acc_val_list)
 		self.acc_val_list.extend([None] * size)
+		
 		

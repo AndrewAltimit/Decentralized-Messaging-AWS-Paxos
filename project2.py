@@ -83,7 +83,7 @@ if __name__ == "__main__":
 	username = all_servers[server_ID]["USERNAME"]
 	
 	# Initialize the log
-	log = log_module.Log("server_{}.log".format(server_ID))
+	log = log_module.Log("server_{}.log".format(server_ID), username)
 	
 	# Create proposer, acceptor, and learner
 	proposer = proposer_module.Proposer(server_ID, all_servers, log)
@@ -112,20 +112,28 @@ if __name__ == "__main__":
 			show_server_config(all_servers)
 
 		elif command == "view":
-			pass
+			log.view_timeline()
 
 		elif command == "tweet":
 			# Repeatedly run the synod algorithm until successful
 			event = Tweet(username, " ".join(parsed_text))
 			while not proposer.insert_event(event):
 				print("Failure to tweet, retrying in 30 seconds.")
-				time.sleep(1)
+				time.sleep(5)
 				
 		elif command == "block":
-			pass
+			# Repeatedly run the synod algorithm until successful
+			event = InsertBlock(username, " ".join(parsed_text).title())
+			while not proposer.insert_event(event):
+				print("Failure to block, retrying in 30 seconds.")
+				time.sleep(5)
 			
 		elif command == "unblock":
-			pass
+			# Repeatedly run the synod algorithm until successful
+			event = DeleteBlock(username, " ".join(parsed_text).title())
+			while not proposer.insert_event(event):
+				print("Failure to unblock, retrying in 30 seconds.")
+				time.sleep(5)
 			
 		elif command == "exit":
 			break

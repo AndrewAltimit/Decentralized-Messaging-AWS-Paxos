@@ -9,10 +9,10 @@ import time
 ARRAY_INIT_SIZE = 8
 
 # Max amount of time allowed for expected incoming messages
-TIMEOUT = 1.5
+TIMEOUT = 1
 
 # Time between each garbage collection procedure on the message buffer (remove expired messages)
-GARBAGE_COLLECT_FREQ = TIMEOUT * 3
+GARBAGE_COLLECT_FREQ = TIMEOUT * 2
 
 # Proposer Class
 class Proposer():
@@ -37,6 +37,9 @@ class Proposer():
 		# Message Buffer
 		self.message_buffer = []
 		
+		# Persistent Sending Socket
+		self.send_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
+		
 		# Start listening thread for incoming messages
 		_thread.start_new_thread(self.listen, ())
 		
@@ -50,7 +53,9 @@ class Proposer():
 			self.sock.bind((self.IP, self.port))
 			while True:
 				msg, source = self.sock.recvfrom(4096)
-				self.process_message(msg, source)
+				
+				# Process message on a thread
+				_thread.start_new_thread(self.process_message, (msg, source,))
 				
 		except:
 			# Restart listening thread
@@ -130,17 +135,17 @@ class Proposer():
 		
 	# Send propose message to all acceptors
 	def propose(self, slot, n):
-		msg = {"TYPE": "PROPOSE", "SLOT": slot, "N": n}
+		msg = {"TYPE": "PROPOSE", "SLOT": slot, "N": n, "ID": self.ID}
 		self.send_all_acceptors(msg)
 		
 	# Send accept message to all acceptors
 	def accept(self, slot, n, event):
-		msg = {"TYPE": "ACCEPT", "SLOT": slot, "N": n, "EVENT": event}
+		msg = {"TYPE": "ACCEPT", "SLOT": slot, "N": n, "EVENT": event, "ID": self.ID}
 		self.send_all_acceptors(msg)
 		
 	# Send commit message to all learners for a particular slot and event
 	def commit(self, slot, event):
-		msg = {"TYPE": "COMMIT", "SLOT": slot, "EVENT": event}
+		msg = {"TYPE": "COMMIT", "SLOT": slot, "EVENT": event, "ID": self.ID}
 		self.send_all_learners(msg)
 		
 	# Return all promises on the message queue which correspond to slot
@@ -210,7 +215,7 @@ class Proposer():
 			
 			# Send Message
 			msg = pickle.dumps(message)
-			self.sock.sendto(msg, (dest_ip, dest_port))
+			self.send_sock.sendto(msg, (dest_ip, dest_port))
 		except:
 			pass
 			
