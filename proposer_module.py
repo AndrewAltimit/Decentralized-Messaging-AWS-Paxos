@@ -83,12 +83,11 @@ class Proposer():
 	def insert_event(self, event):
 		# Get next available slot
 		slot = self.log.get_next_available_slot()
-		print("Trying to fill in this slot:", slot)
-		
+
 		# Send proposal
 		self.increment_event_counter(slot)
 		n = (self.event_counter[slot],self.ID)
-		print("Proposal Number:", n)
+		print("[PROPOSER] Slot: {} Proposal Number: {}".format(slot,n))
 		self.propose(slot, n)
 		
 		# Wait for Promise Messages
