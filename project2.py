@@ -118,25 +118,32 @@ if __name__ == "__main__":
 			# Repeatedly run the synod algorithm until successful
 			event = Tweet(username, " ".join(parsed_text))
 			while not proposer.insert_event(event):
-				print("Failure to tweet, retrying in 30 seconds.")
-				time.sleep(5)
+				print("Failure to tweet, retrying in 10 seconds.")
+				time.sleep(10)
 				
 		elif command == "block":
+			blockee = " ".join(parsed_text).title()
+			if blockee == username:
+				print("Error: You can not block yourself.")
+				continue
+				
 			# Repeatedly run the synod algorithm until successful
-			event = InsertBlock(username, " ".join(parsed_text).title())
+			event = InsertBlock(username, blockee)
 			while not proposer.insert_event(event):
-				print("Failure to block, retrying in 30 seconds.")
-				time.sleep(5)
+				print("Failure to block, retrying in 10 seconds.")
+				time.sleep(10)
 			
 		elif command == "unblock":
+			blockee = " ".join(parsed_text).title()
+			if blockee == username:
+				print("Error: You can not block yourself.")
+				continue
+				
 			# Repeatedly run the synod algorithm until successful
-			event = DeleteBlock(username, " ".join(parsed_text).title())
+			event = DeleteBlock(username, blockee)
 			while not proposer.insert_event(event):
-				print("Failure to unblock, retrying in 30 seconds.")
-				time.sleep(5)
+				print("Failure to unblock, retrying in 10 seconds.")
+				time.sleep(10)
 			
 		elif command == "exit":
 			break
-
-		# Sleep briefly so that potential output from threads can be flushed to terminal before requesting next user input
-		time.sleep(0.1)
