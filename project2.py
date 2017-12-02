@@ -83,7 +83,7 @@ if __name__ == "__main__":
 	username = all_servers[server_ID]["USERNAME"]
 	
 	# Initialize the log
-	log = log_module.Log("server_{}.log".format(server_ID), username)
+	log = log_module.Log(server_ID, username)
 	
 	# Create proposer, acceptor, and learner
 	proposer = proposer_module.Proposer(server_ID, all_servers, log)
@@ -94,7 +94,7 @@ if __name__ == "__main__":
 	message_test(proposer)
 		
 	# GUI - Terminate on Quit/Exit Command
-	valid_commands = ["tweet", "block", "unblock", "timeline", "log", "servers", "exit"]
+	valid_commands = ["tweet", "block", "unblock", "timeline", "blocklist", "log", "servers", "exit"]
 	show_commands(valid_commands)
 	while True:
 		text = input("Server {} => ".format(server_ID))
@@ -116,6 +116,9 @@ if __name__ == "__main__":
 			
 		elif command == "log":
 			log.view_log()
+			
+		elif command == "blocklist":
+			log.view_blocklist()
 
 		elif command == "tweet":
 			# Repeatedly run the synod algorithm until successful
