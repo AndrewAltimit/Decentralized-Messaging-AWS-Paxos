@@ -227,10 +227,13 @@ class Proposer():
 
 	# Search the log for gaps of knowledge. Fill these in with Synod Algorithm
 	def fill_holes(self):
-	  H = self.find_holes()
-	  for s in H:
+		H = self.find_holes()
+		for s in H:
 		  while not self.insert_event_at(s, 0):
 			  time.sleep(10)
+
+	def clear_buffer(self):
+		self.message_buffer = []
 
 	# returns a list of indices where any holes exist in the log
 	def find_holes(self):
@@ -244,65 +247,67 @@ class Proposer():
 
 	# Attempt to learn newer entries beyond the latest known log entry
 	def update_log(self):
-	  while self.learn_next_slot() is not None:
-	    time.sleep(1)
-	    continue
+		done = False
+		while not done:
+			self.clear_buffer()
+			done = self.learn_next_slot()
+			time.sleep(0.1)
 
 	def learn_next_slot(self):
-	  # Get next available slot
-	  slot = self.log.get_next_available_slot()
+		# Get next available slot
+		slot = self.log.get_next_available_slot()
 
-	  # Send proposal
-	  self.increment_event_counter(slot)
-	  n = (self.event_counter[slot],self.ID)
-	  print("[PROPOSER] Slot: {} Proposal Number: {}".format(slot,n))
-	  self.propose(slot, n)
+		# Send proposal
+		self.increment_event_counter(slot)
+		n = (0, 0)
+		print("[PROPOSER] Slot: {} Proposal Number: {}".format(slot,n))
+		self.propose(slot, n)
 
-	  # Wait for Promise Messages
-	  current_time = time.time()
-	  while ((time.time() - current_time) < TIMEOUT) and (len(self.get_promises(slot)) < self.majority_size):
-	    time.sleep(.01)
-	  responses = self.get_promises(slot)
+		# Wait for Promise Messages
+		current_time = time.time()
+		while ((time.time() - current_time) < TIMEOUT) and (len(self.get_promises(slot)) < self.majority_size):
+			time.sleep(.01)
+		responses = self.get_promises(slot)
 
-	  # If not enough responses received, return False as the insertion failed
-	  if len(responses) < self.majority_size:
-	    print("[PROPOSER] Failure to receive majority of promise messages")
-	    return False
+		# If not enough responses received, return False as the insertion failed
+		if len(responses) < self.majority_size:
+			print("[PROPOSER] Failure to receive majority of promise messages")
+			return True
 
-	  # Display received messages
-	  self.display_promise_messages(responses)
+		# Display received messages
+		self.display_promise_messages(responses)
 
-	  # Filter out responses with null values
-	  responses = list(filter(lambda x: (x[0] is not None) and (x[1] is not None), responses))
+		# Filter out responses with null values
+		responses = list(filter(lambda x: (x[0] is not None) and (x[1] is not None), responses))
 
-	  # Determine v to use
-	  if len(responses) == 0:
-	    return None
-	  else:
-	    responses.sort(key=lambda x: x[0])
-	    v = responses[-1][1]
+		# Determine v to use
+		if len(responses) == 0:
+			return True
+		else:
+			responses.sort(key=lambda x: x[0])
+			v = responses[-1][1]
 
-	  # Send accept message
-	  self.accept(slot, n, v)
+		# Send accept message
+		self.accept(slot, n, v)
 
-	  # Wait for ACK Messages
-	  current_time = time.time()
-	  while ((time.time() - current_time) < TIMEOUT) and (len(self.get_acks(slot)) < self.majority_size):
-	    time.sleep(.01)
-	  responses = self.get_acks(slot)
+		# Wait for ACK Messages
+		current_time = time.time()
+		while ((time.time() - current_time) < TIMEOUT) and (len(self.get_acks(slot)) < self.majority_size):
+			time.sleep(.01)
+		responses = self.get_acks(slot)
 
-	  # If not enough responses received, return False as the insertion failed
-	  if len(responses) < self.majority_size:
-	    print("[PROPOSER] Failure to receive majority of ACK messages")
-	    return False
+		# If not enough responses received, return False as the insertion failed
+		if len(responses) < self.majority_size:
+			print("[PROPOSER] Failure to receive majority of ACK messages")
+			return False
 
-	  # Send commit message
-	  # BUG: does not actually update my log, log.get_next_available_slot()
-	  # still returns 0 after committing in slot 0
-	  # NOTE: can you get a commit msg from yourself?
-	  self.commit(slot, v)
+		# Send commit message
+		# BUG: does not actually update my log, log.get_next_available_slot()
+		# still returns 0 after committing in slot 0
+		# NOTE: can you get a commit msg from yourself?
+		self.commit(slot, v)
 
-	  return v
+		return False
 
 
 	# Return True/False if self is the leader for a given slot

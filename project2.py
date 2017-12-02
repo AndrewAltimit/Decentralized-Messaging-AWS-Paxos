@@ -19,7 +19,7 @@ def parse_config(hosts_file):
 		if line.strip() == "":
 			continue
 		parsed_config = line.strip().split(" ")
-		
+
 		server_dict = dict()
 		server_dict["IP"] = parsed_config[0]
 		server_dict["USERNAME"] = parsed_config[1].title()
@@ -30,7 +30,7 @@ def parse_config(hosts_file):
 		ID+=1
 	file.close()
 	return all_servers
-	
+
 
 def show_server_config(all_servers):
 	print("\n{:-^120}".format("SERVER CONFIGURATIONS"))
@@ -42,12 +42,12 @@ def show_server_config(all_servers):
 		l_port = all_servers[ID]["LEARNER_PORT"]
 		print("ID: {:<3} Username: {:<10} IP: {:<15} Proposer Port: {:<10} Acceptor Port: {:<10} Learner Port: {:<10}".format(ID, username, IP, p_port, a_port, l_port))
 	print("-" * 120)
-	
+
 def show_commands(valid_commands):
 	print("\n{:-^120} ".format("COMMANDS"))
 	print("{:^120} ".format("   ".join(valid_commands)))
 	print("-" * 120)
-	
+
 
 ### Message Sending Test ###
 def message_test(proposer):
@@ -57,20 +57,20 @@ def message_test(proposer):
 	print("PROPOSER SENDING TO ALL PROPOSERS...")
 	proposer.send_all_proposers(message)
 	time.sleep(0.5)
-	
+
 	# Sending to all acceptors
 	print("\nPROPOSER SENDING TO ALL ACCEPTORS...")
 	proposer.send_all_acceptors(message)
 	time.sleep(0.5)
-	
+
 	# Sending to all learners
 	print("\nPROPOSER SENDING TO ALL LEARNERS...")
 	proposer.send_all_learners(message)
 	time.sleep(0.5)
 	print("-" * 120)
-	
+
 if __name__ == "__main__":
-	
+
 	# Read in command line arguments
 	server_ID = int(sys.argv[1])
 	hosts_filename = sys.argv[2]
@@ -78,21 +78,23 @@ if __name__ == "__main__":
 	# Parse Config File
 	all_servers = parse_config(hosts_filename)
 	show_server_config(all_servers)
-	
+
 	# Extract username for this server
 	username = all_servers[server_ID]["USERNAME"]
-	
+
 	# Initialize the log
 	log = log_module.Log(server_ID, username)
-	
+
 	# Create proposer, acceptor, and learner
 	proposer = proposer_module.Proposer(server_ID, all_servers, log)
 	acceptor = acceptor_module.Acceptor(server_ID, all_servers)
 	learner = learner_module.Learner(server_ID, all_servers, log)
-		
+
 	# Message Sending Test
 	message_test(proposer)
-		
+
+	proposer.update_log()
+
 	# GUI - Terminate on Quit/Exit Command
 	valid_commands = ["tweet", "block", "unblock", "timeline", "blocklist", "log", "servers", "exit"]
 	show_commands(valid_commands)
@@ -113,10 +115,10 @@ if __name__ == "__main__":
 
 		elif command == "timeline":
 			log.view_timeline()
-			
+
 		elif command == "log":
 			log.view_log()
-			
+
 		elif command == "blocklist":
 			log.view_blocklist()
 
@@ -126,30 +128,30 @@ if __name__ == "__main__":
 			while not proposer.insert_event(event):
 				print("Failure to tweet, retrying in 10 seconds.")
 				time.sleep(10)
-				
+
 		elif command == "block":
 			blockee = " ".join(parsed_text).title()
 			if blockee == username:
 				print("Error: You can not block yourself.")
 				continue
-				
+
 			# Repeatedly run the synod algorithm until successful
 			event = InsertBlock(username, blockee)
 			while not proposer.insert_event(event):
 				print("Failure to block, retrying in 10 seconds.")
 				time.sleep(10)
-			
+
 		elif command == "unblock":
 			blockee = " ".join(parsed_text).title()
 			if blockee == username:
 				print("Error: You can not block yourself.")
 				continue
-				
+
 			# Repeatedly run the synod algorithm until successful
 			event = DeleteBlock(username, blockee)
 			while not proposer.insert_event(event):
 				print("Failure to unblock, retrying in 10 seconds.")
 				time.sleep(10)
-			
+
 		elif command == "exit":
 			break
