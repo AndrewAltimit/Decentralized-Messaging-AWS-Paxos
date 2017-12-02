@@ -17,6 +17,9 @@ class Acceptor():
 		self.IP = server_config[ID]["IP"]
 		self.port = server_config[ID]["ACCEPTOR_PORT"]
 		
+		# Lock for reading/writing to arrays
+		self.lock = _thread.allocate_lock()
+		
 		# Arrays for the status of each round (load from disk if they exit)
 		self.filenames = {"MAX_PREPARE_LIST" : "acceptor_{}_MPL.log".format(ID), \
 		"ACC_NUM_LIST" : "acceptor_{}_ACL.log".format(ID), "ACC_VAL_LIST" : "acceptor_{}_AVL.log".format(ID)}
@@ -111,44 +114,50 @@ class Acceptor():
 		
 		
 	def get_max_prepare(self, slot):
-		# Return None if the slot is out of bounds (even definitely not present)
-		if slot >= len(self.max_prepare_list):
-			return None
-		return self.max_prepare_list[slot]		
+		with self.lock:
+			# Return None if the slot is out of bounds (even definitely not present)
+			if slot >= len(self.max_prepare_list):
+				return None
+			return self.max_prepare_list[slot]		
 	
 	
 	def get_acc_num(self, slot):
-		# Return None if the slot is out of bounds (even definitely not present)
-		if slot >= len(self.acc_num_list):
-			return None
-		return self.acc_num_list[slot]
+		with self.lock:
+			# Return None if the slot is out of bounds (even definitely not present)
+			if slot >= len(self.acc_num_list):
+				return None
+			return self.acc_num_list[slot]
 		
 	def get_acc_val(self, slot):
-		# Return None if the slot is out of bounds (even definitely not present)
-		if slot >= len(self.acc_val_list):
-			return None
-		return self.acc_val_list[slot]
+		with self.lock:
+			# Return None if the slot is out of bounds (even definitely not present)
+			if slot >= len(self.acc_val_list):
+				return None
+			return self.acc_val_list[slot]
 	
 	# Given a slot and value, update the max prepare array
 	def set_max_prepare(self, slot, n):
-		while len(self.max_prepare_list) - 1 < slot:
-			self.extend_max_prepare_list()
-		self.max_prepare_list[slot] = n
-		pickle.dump(self.max_prepare_list, open(self.filenames["MAX_PREPARE_LIST"], "wb" ))
+		with self.lock:
+			while len(self.max_prepare_list) - 1 < slot:
+				self.extend_max_prepare_list()
+			self.max_prepare_list[slot] = n
+			pickle.dump(self.max_prepare_list, open(self.filenames["MAX_PREPARE_LIST"], "wb" ))
 		
 	# Given a slot and value, update the acc num array
 	def set_acc_num(self, slot, n):
-		while len(self.acc_num_list) - 1 < slot:
-			self.extend_acc_num_list()
-		self.acc_num_list[slot] = n
-		pickle.dump(self.max_prepare_list, open(self.filenames["ACC_NUM_LIST"], "wb" ))
+		with self.lock:
+			while len(self.acc_num_list) - 1 < slot:
+				self.extend_acc_num_list()
+			self.acc_num_list[slot] = n
+			pickle.dump(self.max_prepare_list, open(self.filenames["ACC_NUM_LIST"], "wb" ))
 		
 	# Given a slot and value, update the acc val array
 	def set_acc_val(self, slot, v):
-		while len(self.acc_val_list) - 1 < slot:
-			self.extend_acc_val_list()
-		self.acc_val_list[slot] = v
-		pickle.dump(self.max_prepare_list, open(self.filenames["ACC_VAL_LIST"], "wb" ))
+		with self.lock:
+			while len(self.acc_val_list) - 1 < slot:
+				self.extend_acc_val_list()
+			self.acc_val_list[slot] = v
+			pickle.dump(self.max_prepare_list, open(self.filenames["ACC_VAL_LIST"], "wb" ))
 			
 	# Extend the Max Prepare list to twice it's size
 	def extend_max_prepare_list(self):
