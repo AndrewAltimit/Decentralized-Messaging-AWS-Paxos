@@ -9,6 +9,8 @@ ARRAY_INIT_SIZE = 8
 # Log Class
 class Log():
 	def __init__(self, ID, username):
+		print("{:-^120}".format("INITIALIZING LOG"))
+		
 		self.ID = ID
 		self.filenames = {\
 		"LOG" : "server_{}_log.log".format(ID), \
@@ -31,7 +33,8 @@ class Log():
 		if os.path.isfile(self.filenames["LOG"]):
 			self.load_log()
 		
-		print("Checkpoint Status:", self.checkpoint)
+		print("[LOG] Checkpoint:", self.checkpoint)
+		print("-" * 120)
 			
 		
 		
@@ -65,8 +68,9 @@ class Log():
 		
 	def replay(self, events):
 		print("[LOG] Replaying {} events...".format(len(events)))
-		for event in events:
-			self.process_event_internally(event)
+		for i in range(len(events)):
+			print("[LOG] {} - {}".format(i + 1, str(events[i])))
+			self.process_event_internally(events[i])
 		print("[LOG] Finished replaying events")
 		
 	def write(self, slot, event):			
@@ -131,9 +135,16 @@ class Log():
 			self.timeline.append(event)
 		elif type(event) == InsertBlock:
 			self.blocks.add(event)
+			self.rebuild_timeline()
 		elif type(event) == DeleteBlock:
 			self.blocks -= set([event.convert_to_IB()])
+			self.rebuild_timeline()
 			
+	def rebuild_timeline(self):
+		self.timeline = []
+		for event in self.events_log:
+			if type(event) == Tweet and self.is_viewable(event):
+				self.timeline.append(event)
 	
 	def extend_events_log(self):
 		size = len(self.events_log)
@@ -156,8 +167,7 @@ class Log():
 	def view_timeline(self):
 		output = "{:-^120}\n".format("TIMELINE")
 		for event in sorted(self.timeline, reverse = True):
-			if self.is_viewable(event):
-				output += str(event) + "\n"
+			output += str(event) + "\n"
 		output += "-" * 120
 		print(output)
 		
