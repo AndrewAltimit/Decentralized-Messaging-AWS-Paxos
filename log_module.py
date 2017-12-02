@@ -171,7 +171,7 @@ class Log():
 	def view_blocklist(self):
 		output = "{:-^120}\n".format("BLOCK LIST")
 		for block in self.blocks:
-			output += str(event) + "\n"
+			output += str(block) + "\n"
 		output += "-" * 120
 		print(output)
 	
