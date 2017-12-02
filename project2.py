@@ -94,7 +94,7 @@ if __name__ == "__main__":
 	message_test(proposer)
 		
 	# GUI - Terminate on Quit/Exit Command
-	valid_commands = ["tweet", "block", "unblock", "view", "servers", "exit"]
+	valid_commands = ["tweet", "block", "unblock", "timeline", "log", "servers", "exit"]
 	show_commands(valid_commands)
 	while True:
 		text = input("Server {} => ".format(server_ID))
@@ -111,8 +111,11 @@ if __name__ == "__main__":
 		elif command == "servers":
 			show_server_config(all_servers)
 
-		elif command == "view":
+		elif command == "timeline":
 			log.view_timeline()
+			
+		elif command == "log":
+			log.view_log()
 
 		elif command == "tweet":
 			# Repeatedly run the synod algorithm until successful

@@ -132,3 +132,10 @@ class Log():
 			if self.is_viewable(event):
 				print(event)
 		print("-" * 120)
+		
+	def view_log(self):
+		output = "{:-^120}\n".format("LOG CONTENTS")
+		for i in range(len(self.events_log)):
+			output += "SLOT {}: {}\n".format(i, str(self.events_log[i]))
+		output += "-" * 120
+		print(output)
