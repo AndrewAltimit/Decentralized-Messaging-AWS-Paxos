@@ -131,7 +131,7 @@ class Log():
 		# Tweet       -> Add to Timeline
 		# InsertBlock -> Add to block list
 		# DeleteBlock -> Remove from block list
-		if type(event) == Tweet:
+		if type(event) == Tweet and self.is_viewable(event):
 			self.timeline.append(event)
 		elif type(event) == InsertBlock:
 			self.blocks.add(event)
