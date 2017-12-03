@@ -218,9 +218,6 @@ class Proposer():
 
 	# Send commit message to all learners for a particular slot and event
 	def commit(self, slot, event):
-		# Store leader
-		self.setLeader(slot + 1, self.get_ID_from_username(event.username))
-
 		# Send Commit Message
 		msg = {"TYPE": "COMMIT", "SLOT": slot, "EVENT": event, "ID": self.ID}
 		self.send_all_learners(msg)
