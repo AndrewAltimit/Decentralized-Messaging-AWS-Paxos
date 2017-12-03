@@ -26,7 +26,11 @@ class Proposer():
 		self.port = server_config[ID]["PROPOSER_PORT"]
 
 		# Array of known leaders
-		self.leader_list = [None] * ARRAY_INIT_SIZE
+		if os.path.isfile("proposer_{}_LL".format(self.ID)):
+			self.leader_list = pickle.load(open("proposer_{}_LL.log".format(self.ID), "rb" ))
+		else:
+			self.leader_list = [None] * ARRAY_INIT_SIZE
+			self.leader_list[0] = 0 # Nobody is the leader for the first slot
 
 		# Array of event counts for each slot (n)
 		self.event_counter = [0] * ARRAY_INIT_SIZE
@@ -98,35 +102,40 @@ class Proposer():
 		# Get next available slot
 		slot = self.log.get_next_available_slot()
 
-		# Send proposal
-		self.increment_event_counter(slot)
-		n = (self.event_counter[slot],self.ID)
-		print("[PROPOSER] Slot: {} Proposal Number: {}".format(slot,n))
-		self.propose(slot, n)
-
-		# Wait for Promise Messages
-		current_time = time.time()
-		while ((time.time() - current_time) < TIMEOUT) and (len(self.get_promises(slot)) < self.majority_size):
-			time.sleep(.01)
-		responses = self.get_promises(slot)
-
-		# If not enough responses received, return False as the insertion failed
-		if len(responses) < self.majority_size:
-			print("[PROPOSER] Failure to receive majority of promise messages")
-			return False
-
-		# Display received messages
-		self.display_promise_messages(responses)
-
-		# Filter out responses with null values
-		responses = list(filter(lambda x: (x[0] is not None) and (x[1] is not None), responses))
-
-		# Determine v to use
-		if len(responses) == 0:
+		# Send proposal if not the leader
+		if self.isLeader(slot):
+			print("[PROPOSER] Leader for slot {}, skipping to accept phase".format(slot))
+			n = (0, 0)
 			v = event
 		else:
-			responses.sort(key=lambda x: x[0])
-			v = responses[-1][1]
+			self.increment_event_counter(slot)
+			n = (self.event_counter[slot],self.ID)
+			print("[PROPOSER] Slot: {} Proposal Number: {}".format(slot,n))
+			self.propose(slot, n)
+
+			# Wait for Promise Messages
+			current_time = time.time()
+			while ((time.time() - current_time) < TIMEOUT) and (len(self.get_promises(slot)) < self.majority_size):
+				time.sleep(.01)
+			responses = self.get_promises(slot)
+
+			# If not enough responses received, return False as the insertion failed
+			if len(responses) < self.majority_size:
+				print("[PROPOSER] Failure to receive majority of promise messages")
+				return False
+
+			# Display received messages
+			self.display_promise_messages(responses)
+
+			# Filter out responses with null values
+			responses = list(filter(lambda x: (x[0] is not None) and (x[1] is not None), responses))
+
+			# Determine v to use
+			if len(responses) == 0:
+				v = event
+			else:
+				responses.sort(key=lambda x: x[0])
+				v = responses[-1][1]
 
 		# Send accept message
 		self.accept(slot, n, v)
@@ -220,8 +229,18 @@ class Proposer():
 
 	# Send commit message to all learners for a particular slot and event
 	def commit(self, slot, event):
+		# Store leader
+		self.setLeader(slot + 1, self.get_ID_from_username(event.username))
+
+		# Send Commit Message
 		msg = {"TYPE": "COMMIT", "SLOT": slot, "EVENT": event, "ID": self.ID}
 		self.send_all_learners(msg)
+
+	def get_ID_from_username(self, username):
+		for ID in self.server_config:
+			if self.server_config[ID]["USERNAME"].title() == username.title():
+				return ID
+		return 0
 
 	# Return all promises on the message queue which correspond to slot
 	def get_promises(self, slot):
@@ -242,11 +261,6 @@ class Proposer():
 	def clear_buffer(self):
 		self.message_buffer = []
 
-	# Search the log for gaps of knowledge. Fill these in with Synod Algorithm
-	def fill_holes(self):
-		holes = self.find_holes()
-		for slot in holes:
-			self.learn_slot(slot)
 
 
 	# returns a list of indices where any holes exist in the log
@@ -259,11 +273,18 @@ class Proposer():
 				holes.append(i)
 		return holes[::-1]
 
+	# Search the log for gaps of knowledge. Fill these in with Synod Algorithm
 	# thread that runs continuously, every 60 seconds it
 	def hole_filler(self):
 		while True:
 			time.sleep(60)
-			self.fill_holes()
+			holes = self.find_holes()
+			if len(holes) == 0:
+				print("[HOLE DETECTOR] No holes found")
+			else:
+				print("[HOLE DETECTOR] Found the following holes in the log:", holes)
+			for slot in holes:
+				self.learn_slot(slot)
 
 	# Attempt to learn newer entries beyond the latest known log entry
 	def update_log(self):
@@ -322,9 +343,6 @@ class Proposer():
 			return False
 
 		# Send commit message
-		# BUG: does not actually update my log, log.get_next_available_slot()
-		# still returns 0 after committing in slot 0
-		# NOTE: can you get a commit msg from yourself?
 		self.commit(slot, v)
 
 		return False
@@ -332,18 +350,31 @@ class Proposer():
 
 	# Return True/False if self is the leader for a given slot
 	def isLeader(self, slot):
-		return (getLeader(slot) == self.ID)
+		return (self.getLeader(slot) == self.ID)
 
 	# Get the known leader (if any) for a particular slot
 	# None is returned if no known leader exists
 	def getLeader(self, slot):
+		# If the leader is unknown, return 0
+		if slot >= len(self.leader_list) or self.leader_list[slot] is None:
+			return 0
+
 		return self.leader_list[slot]
 
 	# Set the known leader for a particular slot
 	def setLeader(self, slot, ID):
-		while len(self.leader_list) - 1 < slot:
-			self.extend_leader_list()
-		self.leader_list[slot] = ID
+		with self.lock:
+			while len(self.leader_list) - 1 < slot:
+				self.extend_leader_list()
+			self.leader_list[slot] = ID
+			pickle.dump(self.leader_list, open("proposer_{}_LL.log".format(self.ID), "wb" ))
+
+	def view_leader_list(self):
+		output = "{:-^120}\n".format("LEADER LIST")
+		for i in range(1, len(self.leader_list)):
+			output += "SLOT {}: {}\n".format(i, str(self.getLeader(i)))
+		output += "-" * 120
+		print(output)
 
 	# Extend the leader list to twice it's size
 	def extend_leader_list(self):

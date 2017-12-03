@@ -75,10 +75,12 @@ class Acceptor():
 		s3 = "Source:      [{}:{}]".format(source[0], source[1])
 		print("{:<40} {:<40} {:<40}".format(s1, s2, s3))
 
+		print(msg)
+
 		if type == "PROPOSE":
 			slot = msg["SLOT"]
 			n = msg["N"]
-			if (self.get_max_prepare(slot) is None) or (n > self.get_max_prepare(slot) or (n==(0, 0))):
+			if (self.get_max_prepare(slot) is None) or (n > self.get_max_prepare(slot)) or (n == (0, 0)):
 				if n != (0, 0):
 					self.set_max_prepare(slot, n)
 				source = (source[0], self.server_config[msg["ID"]]["PROPOSER_PORT"])
@@ -87,12 +89,11 @@ class Acceptor():
 			slot = msg["SLOT"]
 			n = msg["N"]
 			# Determine whether to send an ack message and update state
-			if (n >= self.get_max_prepare(slot) or (n==(0, 0))):
+			if ((n==(0, 0) and self.get_acc_num(slot) is None) or (n >= self.get_max_prepare(slot))):
 				v = msg["EVENT"]
-				if n != (0, 0):
-					self.set_acc_num(slot, n)
-					self.set_acc_val(slot, v)
-					self.set_max_prepare(slot, n)
+				self.set_acc_num(slot, n)
+				self.set_acc_val(slot, v)
+				self.set_max_prepare(slot, n)
 				source = (source[0], self.server_config[msg["ID"]]["PROPOSER_PORT"])
 				# Send an ack message
 				self.ack(slot, source)

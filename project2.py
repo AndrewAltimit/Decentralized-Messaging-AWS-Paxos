@@ -96,7 +96,7 @@ if __name__ == "__main__":
 	proposer.update_log()
 
 	# GUI - Terminate on Quit/Exit Command
-	valid_commands = ["tweet", "block", "unblock", "timeline", "blocklist", "log", "servers", "drop", "exit"]
+	valid_commands = ["tweet", "block", "unblock", "view", "blocklist", "leaders", "log", "servers", "drop", "exit"]
 	show_commands(valid_commands)
 	while True:
 		text = input("Server {} => ".format(server_ID))
@@ -113,7 +113,7 @@ if __name__ == "__main__":
 		elif command == "servers":
 			show_server_config(all_servers)
 
-		elif command == "timeline":
+		elif command == "view":
 			log.view_timeline()
 
 		elif command == "log":
@@ -152,7 +152,7 @@ if __name__ == "__main__":
 			while not proposer.insert_event(event):
 				print("Failure to unblock, retrying in 10 seconds.")
 				time.sleep(10)
-				
+
 		elif command == "drop":
 			if len(parsed_text) != 2:
 				continue
@@ -166,6 +166,9 @@ if __name__ == "__main__":
 				acceptor.drop_messages(drop_num)
 			elif dropee == "learner":
 				learner.drop_messages(drop_num)
+
+		elif command == "leaders":
+			proposer.view_leader_list()
 
 		elif command == "exit":
 			break
