@@ -38,7 +38,7 @@ class Log():
 		print("-" * 120)
 
 
-
+	# Load the log from disk and replay leftover events into timeline and blocklist
 	def load_log(self):
 		# open the file of current server for write
 		f = open(self.filenames["LOG"], 'rb')
@@ -67,6 +67,7 @@ class Log():
 		# Replay events (up to 4 of the latest events from the log file)
 		self.replay(replay_events)
 
+	# Replay a given list of events
 	def replay(self, events):
 		print("[LOG] Replaying {} events...".format(len(events)))
 		for i in range(len(events)):
@@ -74,6 +75,7 @@ class Log():
 			self.process_event_internally(events[i])
 		print("[LOG] Finished replaying events")
 
+	# Write an event to disk
 	def write(self, slot, event):
 		with self.lock:
 			# Write to file
@@ -83,26 +85,28 @@ class Log():
 			pickle.dump((slot,event), f)
 			f.close()
 
+	# Return the in-memory log
 	def get_log(self):
 		return self.events_log
 
-
+	# Store the timeline to disk
 	def store_timeline(self):
 		with self.lock:
 			pickle.dump(self.timeline, open(self.filenames["TIMELINE"], "wb" ))
 
-
+	# Store the blocklist to disk
 	def store_blocklist(self):
 		with self.lock:
 			pickle.dump(self.blocks, open(self.filenames["BLOCKLIST"], "wb" ))
 
-
+	# Return the entry for a given slot
 	def get_entry(self, slot):
 		# Return None if the slot is outside of log bounds (even definitely not present)
 		if slot >= len(self.events_log):
 			return None
 		return self.events_log[slot]
 
+	# Set an entry for a given slot if it is not already filled
 	def set_entry(self, slot, event):
 		# Do not write to the log if it is already present
 		if self.get_entry(slot) is not None:
@@ -128,6 +132,7 @@ class Log():
 			self.store_blocklist()
 
 
+	# Save event to any relevant in-memory data structures it corresponds to
 	def process_event_internally(self, event):
 		# Event Type Procedure:
 		# Tweet       -> Add to Timeline
@@ -142,12 +147,14 @@ class Log():
 			self.blocks -= set([event.convert_to_IB()])
 			self.rebuild_timeline()
 
+	# Rebuild the timeline based on the current contents of the log and blocklist
 	def rebuild_timeline(self):
 		self.timeline = []
 		for event in self.events_log:
 			if type(event) == Tweet and self.is_viewable(event):
 				self.timeline.append(event)
 
+	# Extend the events log to twice its size
 	def extend_events_log(self):
 		with self.lock:
 			size = len(self.events_log)
@@ -160,13 +167,20 @@ class Log():
 				return i + 1
 		return 0
 
+	# Determine if an event is viewable for this person
 	def is_viewable(self, event):
+		# All users can see non-tweet events
+		if type(event) != Tweet:
+			return True
+			
+		# Check all the blocks and see if there are any which would prevent us from viewing the event
 		for block in self.blocks:
 			# If the event username matches an InsertBlock initiator, is our user the blockee?
 			if (event.username == block.username) and (block.follower == self.username):
 				return False
 		return True
 
+	# Display the timeline
 	def view_timeline(self):
 		output = "{:-^120}\n".format("TIMELINE")
 		for event in sorted(self.timeline, reverse = True):
@@ -174,6 +188,7 @@ class Log():
 		output += "-" * 120
 		print(output)
 
+	# Display the contents of the log
 	def view_log(self):
 		output = "{:-^120}\n".format("LOG CONTENTS")
 		for i in range(len(self.events_log)):
@@ -181,6 +196,7 @@ class Log():
 		output += "-" * 120
 		print(output)
 
+	# Display the blocklist
 	def view_blocklist(self):
 		output = "{:-^120}\n".format("BLOCK LIST")
 		for block in self.blocks:
@@ -188,6 +204,7 @@ class Log():
 		output += "-" * 120
 		print(output)
 
+	# Increment the checkpoint
 	def increment_checkpoint(self):
 		self.checkpoint += 1
 
@@ -204,6 +221,7 @@ class Log():
 
 		return ID == self.get_ID_from_username(event.username)
 
+	# Lookup a username and find the corresponding server ID
 	def get_ID_from_username(self, username):
 		for ID in self.server_config:
 			if self.server_config[ID]["USERNAME"].title() == username.title():

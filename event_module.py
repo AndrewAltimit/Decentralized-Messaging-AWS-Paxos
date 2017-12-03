@@ -115,5 +115,6 @@ class DeleteBlock():
 	def get_username(self):
 		return self.username
 		
+	# Return the corresponding InsertBlock for this DeleteBlock
 	def convert_to_IB(self):
 		return InsertBlock(self.username, self.follower)

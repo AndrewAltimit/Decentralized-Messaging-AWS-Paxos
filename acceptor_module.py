@@ -10,9 +10,8 @@ ARRAY_INIT_SIZE = 8
 
 # Acceptor Class
 class Acceptor():
-	def __init__(self, ID, server_config, log):
+	def __init__(self, ID, server_config):
 		self.ID = ID
-		self.log = log
 		self.server_config = server_config
 
 		# IP/Port Configuration for this Acceptor
@@ -31,12 +30,8 @@ class Acceptor():
 		"ACC_NUM_LIST" : "acceptor_{}_ANL.log".format(ID), \
 		"ACC_VAL_LIST"  : "acceptor_{}_AVL.log".format(ID)}
 
-		if self.files_exist():
-			self.load_data()
-		else:
-			self.max_prepare_list = [None] * ARRAY_INIT_SIZE
-			self.acc_num_list     = [None] * ARRAY_INIT_SIZE
-			self.acc_val_list     = [None] * ARRAY_INIT_SIZE
+		# Load state from disk if available
+		self.load_data()
 
 		# Persistent Sending Socket
 		self.send_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
@@ -84,6 +79,7 @@ class Acceptor():
 		else:
 			return
 
+		# Respond to either propose or accept messages with potential promise/ack messages
 		if msg_type == "PROPOSE":
 			if (self.get_max_prepare(slot) is None) or (n > self.get_max_prepare(slot)) or (n == (0, 0)):
 				if n != (0, 0):
@@ -102,6 +98,7 @@ class Acceptor():
 				# Send an ack message
 				self.ack(slot, source)
 
+	# Send a promise message
 	def promise(self, slot, dest):
 		acc_num = self.get_acc_num(slot)
 		acc_val = self.get_acc_val(slot)
@@ -131,6 +128,7 @@ class Acceptor():
 			pass
 
 
+	# Get the max prepare value for a particular slot
 	def get_max_prepare(self, slot):
 		with self.lock:
 			# Return None if the slot is out of bounds (even definitely not present)
@@ -138,7 +136,7 @@ class Acceptor():
 				return None
 			return self.max_prepare_list[slot]
 
-
+	# Get the acc num for a particular slot
 	def get_acc_num(self, slot):
 		with self.lock:
 			# Return None if the slot is out of bounds (even definitely not present)
@@ -146,6 +144,7 @@ class Acceptor():
 				return None
 			return self.acc_num_list[slot]
 
+	# Get the acc val for a particular slot
 	def get_acc_val(self, slot):
 		with self.lock:
 			# Return None if the slot is out of bounds (even definitely not present)
@@ -192,18 +191,22 @@ class Acceptor():
 		size = len(self.acc_val_list)
 		self.acc_val_list.extend([None] * size)
 
-	def files_exist(self):
-		status = True
-		for key in self.filenames:
-			filename = self.filenames[key]
-			if not os.path.isfile(filename):
-				status = False
-		return status
-
+	# Load state off of disk if available
 	def load_data(self):
-		self.max_prepare_list = pickle.load(open(self.filenames["MAX_PREPARE_LIST"], "rb" ))
-		self.acc_num_list = pickle.load(open(self.filenames["ACC_NUM_LIST"], "rb" ))
-		self.acc_val_list = pickle.load(open(self.filenames["ACC_VAL_LIST"], "rb" ))
+		if os.path.isfile(self.filenames["MAX_PREPARE_LIST"]):
+			self.max_prepare_list = pickle.load(open(self.filenames["MAX_PREPARE_LIST"], "rb" ))
+		else:
+			self.max_prepare_list = [None] * ARRAY_INIT_SIZE
+			
+		if os.path.isfile(self.filenames["ACC_NUM_LIST"]):
+			self.acc_num_list = pickle.load(open(self.filenames["ACC_NUM_LIST"], "rb" ))
+		else:
+			self.acc_num_list = [None] * ARRAY_INIT_SIZE
+			
+		if os.path.isfile(self.filenames["ACC_VAL_LIST"]):
+			self.acc_val_list = pickle.load(open(self.filenames["ACC_VAL_LIST"], "rb" ))
+		else:
+			self.acc_val_list = [None] * ARRAY_INIT_SIZE
 
 
 	# Drop the requested number of messages in the listening thread

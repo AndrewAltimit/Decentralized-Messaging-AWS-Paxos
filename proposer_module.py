@@ -150,7 +150,6 @@ class Proposer():
 
 		# Return True / False depending on whether the value commited
 		# was the original event we were trying to insert
-
 		return v == event
 
 	# Return True/False if the event was successfully inserted into the latest available slot
@@ -205,9 +204,6 @@ class Proposer():
 		# Send commit message
 		self.commit(slot, v)
 
-		# Return True / False depending on whether the value commited
-		# was the original event we were trying to insert
-
 		return True
 
 
@@ -243,9 +239,9 @@ class Proposer():
 				acks.append((msg["ACC_NUM"], msg["ACC_VAL"]))
 		return acks
 
+	# Clear the message buffer
 	def clear_buffer(self):
 		self.message_buffer = []
-
 
 
 	# returns a list of indices where any holes exist in the log
@@ -279,6 +275,7 @@ class Proposer():
 			done = self.learn_next_slot()
 			time.sleep(0.1)
 
+	# Learn the next available slot
 	def learn_next_slot(self):
 		# Get next available slot
 		slot = self.log.get_next_available_slot()

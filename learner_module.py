@@ -58,6 +58,7 @@ class Learner():
 		s3 = "Source:      [{}:{}]".format(source[0], source[1])
 		print("{:<40} {:<40} {:<40}".format(s1, s2, s3))
 
+		# If the received message is a commit message, pass it to the log
 		if msg_type == "COMMIT":
 			slot = msg["SLOT"]
 			event = msg["EVENT"]

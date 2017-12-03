@@ -31,7 +31,7 @@ def parse_config(hosts_file):
 	file.close()
 	return all_servers
 
-
+# Show all known server configurations
 def show_server_config(all_servers):
 	print("\n{:-^120}".format("SERVER CONFIGURATIONS"))
 	for ID in all_servers:
@@ -43,6 +43,7 @@ def show_server_config(all_servers):
 		print("ID: {:<3} Username: {:<10} IP: {:<15} Proposer Port: {:<10} Acceptor Port: {:<10} Learner Port: {:<10}".format(ID, username, IP, p_port, a_port, l_port))
 	print("-" * 120)
 
+# Show all valid commands
 def show_commands(valid_commands):
 	print("\n{:-^120} ".format("COMMANDS"))
 	print("{:^120} ".format("   ".join(valid_commands)))
@@ -87,7 +88,7 @@ if __name__ == "__main__":
 
 	# Create proposer, acceptor, and learner
 	proposer = proposer_module.Proposer(server_ID, all_servers, log)
-	acceptor = acceptor_module.Acceptor(server_ID, all_servers, log)
+	acceptor = acceptor_module.Acceptor(server_ID, all_servers)
 	learner = learner_module.Learner(server_ID, all_servers, log)
 
 	# Message Sending Test
@@ -96,7 +97,7 @@ if __name__ == "__main__":
 	proposer.update_log()
 
 	# GUI - Terminate on Quit/Exit Command
-	valid_commands = ["tweet", "block", "unblock", "view", "blocklist", "log", "servers", "drop", "exit"]
+	valid_commands = ["tweet", "block", "unblock", "view", "blocklist", "log", "servers", "drop", "commands", "exit"]
 	show_commands(valid_commands)
 	while True:
 		text = input("Server {} => ".format(server_ID))
@@ -166,6 +167,9 @@ if __name__ == "__main__":
 				acceptor.drop_messages(drop_num)
 			elif dropee == "learner":
 				learner.drop_messages(drop_num)
+				
+		elif command == "commands":
+			show_commands(valid_commands)
 
 		elif command == "exit":
 			break
