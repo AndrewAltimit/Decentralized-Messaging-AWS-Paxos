@@ -78,4 +78,4 @@ class Learner():
 		
 	# Sleep the listening thread for the requested number of seconds
 	def sleep(self, seconds):
-		self.sleep = seconds
+		self.sleep_timer = seconds
