@@ -102,15 +102,15 @@ class Proposer():
 		# Get next available slot
 		slot = self.log.get_next_available_slot()
 
+		self.increment_event_counter(slot)
+		n = (self.event_counter[slot],self.ID)
+		print("[PROPOSER] Slot: {} Proposal Number: {}".format(slot,n))
+
 		# Send proposal if not the leader
 		if self.isLeader(slot):
 			print("[PROPOSER] Leader for slot {}, skipping to accept phase".format(slot))
-			n = (0, 0)
 			v = event
 		else:
-			self.increment_event_counter(slot)
-			n = (self.event_counter[slot],self.ID)
-			print("[PROPOSER] Slot: {} Proposal Number: {}".format(slot,n))
 			self.propose(slot, n)
 
 			# Wait for Promise Messages
