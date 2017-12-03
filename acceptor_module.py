@@ -75,8 +75,6 @@ class Acceptor():
 		s3 = "Source:      [{}:{}]".format(source[0], source[1])
 		print("{:<40} {:<40} {:<40}".format(s1, s2, s3))
 
-		print(msg)
-
 		if type == "PROPOSE":
 			slot = msg["SLOT"]
 			n = msg["N"]
