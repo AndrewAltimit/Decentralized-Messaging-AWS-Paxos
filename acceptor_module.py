@@ -28,8 +28,8 @@ class Acceptor():
 		# Arrays for the status of each round (load from disk if they exit)
 		self.filenames = {\
 		"MAX_PREPARE_LIST" : "acceptor_{}_MPL.log".format(ID), \
-		"ACC_NUM_LIST" : "acceptor_{}_ACL.log".format(ID), \
-		"LEADER_LIST"  : "acceptor_{}_LL.log".format(ID)}
+		"ACC_NUM_LIST" : "acceptor_{}_ANL.log".format(ID), \
+		"ACC_VAL_LIST"  : "acceptor_{}_AVL.log".format(ID)}
 
 		if self.files_exist():
 			self.load_data()
