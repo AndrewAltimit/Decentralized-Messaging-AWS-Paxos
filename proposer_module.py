@@ -99,38 +99,64 @@ class Proposer():
 		n = (self.event_counter[slot],self.ID)
 		print("[PROPOSER] Slot: {} Proposal Number: {}".format(slot,n))
 
-		# Leader can skip to ACCEPT stage
-		if not self.log.is_leader(slot, self.ID):
-			# Send proposal
-			self.propose(slot, n)
-
-			# Wait for Promise Messages
-			current_time = time.time()
-			while ((time.time() - current_time) < TIMEOUT) and (len(self.get_promises(slot)) < self.majority_size):
-				time.sleep(.01)
-			responses = self.get_promises(slot)
-
-			# If not enough responses received, return False as the insertion failed
-			if len(responses) < self.majority_size:
-				print("[PROPOSER] Failure to receive majority of promise messages")
-				return False
-
-			# Display received messages
-			self.display_promise_messages(responses)
-
-			# Filter out responses with null values
-			responses = list(filter(lambda x: (x[0] is not None) and (x[1] is not None), responses))
-
-			# Determine v to use
-			if len(responses) == 0:
-				v = event
-			else:
-				responses.sort(key=lambda x: x[0])
-				v = responses[-1][1]
-		else:
+		
+		# Leader can skip to ACCEPT stage, otherwise run PREPARE phase
+		if self.log.is_leader(slot, self.ID):
 			print("[PROPOSER] Leader for slot {}, skiping to ACCEPT phase".format(self.ID))
 			v = event
+		else:
+			# PREPARE Phase
+			v = self.prepare_phase(slot, n, event)
+			
+			# If v is None, failed prepare phase
+			if v is None:
+				return False
+				
 
+		# ACCEPT phase, if it fails to receive majority ACKs, return False
+		if not self.accept_phase(slot, n, v):
+			return False
+
+		# Send commit message
+		self.commit(slot, v)
+
+		# Return True / False depending on whether the value commited
+		# was the original event we were trying to insert
+		return v == event
+		
+	# PREPARE Phase: Return None on failure, otherwise return v (the entry to be used for the accept phase)
+	def prepare_phase(self, slot, n, event):
+		# Send proposal
+		self.propose(slot, n)
+
+		# Wait for Promise Messages
+		current_time = time.time()
+		while ((time.time() - current_time) < TIMEOUT) and (len(self.get_promises(slot)) < self.majority_size):
+			time.sleep(.01)
+		responses = self.get_promises(slot)
+
+		# If not enough responses received, return None as the prepare phase failed
+		if len(responses) < self.majority_size:
+			print("[PROPOSER] Failure to receive majority of promise messages")
+			return None
+
+		# Display received messages
+		self.display_promise_messages(responses)
+
+		# Filter out responses with null values
+		responses = list(filter(lambda x: (x[0] is not None) and (x[1] is not None), responses))
+
+		# Determine v to use
+		if len(responses) == 0:
+			v = event
+		else:
+			responses.sort(key=lambda x: x[0])
+			v = responses[-1][1]
+			
+		return v
+		
+	# ACCEPT Phase: Return True if majority of acks are received
+	def accept_phase(self, slot, n, v):
 		# Send accept message
 		self.accept(slot, n, v)
 
@@ -140,17 +166,13 @@ class Proposer():
 			time.sleep(.01)
 		responses = self.get_acks(slot)
 
-		# If not enough responses received, return False as the insertion failed
+		# If not enough responses received, return False as the prepare phase failed
 		if len(responses) < self.majority_size:
 			print("[PROPOSER] Failure to receive majority of ACK messages")
 			return False
-
-		# Send commit message
-		self.commit(slot, v)
-
-		# Return True / False depending on whether the value commited
-		# was the original event we were trying to insert
-		return v == event
+		
+		return True
+		
 
 	# Return True/False if the event was successfully inserted into the latest available slot
 	def learn_slot(self, s):
