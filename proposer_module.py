@@ -14,9 +14,6 @@ TIMEOUT = 1
 # Time between each garbage collection procedure on the message buffer (remove expired messages)
 GARBAGE_COLLECT_FREQ = TIMEOUT * 3
 
-# Time for the listening thread to sleep (used for debug purposes)
-SLEEP = 0
-
 # Proposer Class
 class Proposer():
 	def __init__(self, ID, server_config, log):
@@ -39,6 +36,9 @@ class Proposer():
 
 		# Message Buffer
 		self.message_buffer = []
+		
+		# Time for the listening thread to sleep (used for debug purposes)
+		self.sleep_timer = 0
 
 		# Persistent Sending Socket
 		self.send_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
@@ -61,9 +61,9 @@ class Proposer():
 				msg, source = self.sock.recvfrom(4096)
 				
 				# Sleep if requested to by the user
-				while self.sleep > 0:
+				while self.sleep_timer > 0:
 					time.sleep(1)
-					self.sleep -= 1
+					self.sleep_timer -= 1
 					
 				# Process message on a thread
 				_thread.start_new_thread(self.process_message, (msg, source,))

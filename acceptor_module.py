@@ -7,9 +7,6 @@ from event_module import *
 # Initial array sizes, double as needed for each reallocation
 ARRAY_INIT_SIZE = 8
 
-# Time for the listening thread to sleep (used for debug purposes)
-SLEEP = 0
-
 # Acceptor Class
 class Acceptor():
 	def __init__(self, ID, server_config):
@@ -22,6 +19,9 @@ class Acceptor():
 
 		# Lock for reading/writing to arrays
 		self.lock = _thread.allocate_lock()
+		
+		# Time for the listening thread to sleep (used for debug purposes)
+		self.sleep_timer = 0
 
 		# Arrays for the status of each round (load from disk if they exit)
 		self.filenames = {\
@@ -52,9 +52,9 @@ class Acceptor():
 				msg, source = self.sock.recvfrom(4096)
 				
 				# Sleep if requested to by the user
-				while self.sleep > 0:
+				while self.sleep_timer > 0:
 					time.sleep(1)
-					self.sleep -= 1
+					self.sleep_timer -= 1
 
 				# Process message on a thread
 				_thread.start_new_thread(self.process_message, (msg, source,))
