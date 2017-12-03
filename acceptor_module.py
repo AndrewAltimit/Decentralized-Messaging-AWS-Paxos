@@ -87,11 +87,12 @@ class Acceptor():
 			slot = msg["SLOT"]
 			n = msg["N"]
 			# Determine whether to send an ack message and update state
-			if ((n==(0, 0) and self.get_acc_num(slot) is None) or (n >= self.get_max_prepare(slot))):
+			if (n==(0, 0) or (n >= self.get_max_prepare(slot))):
 				v = msg["EVENT"]
-				self.set_acc_num(slot, n)
-				self.set_acc_val(slot, v)
-				self.set_max_prepare(slot, n)
+				if n != (0, 0):
+					self.set_acc_num(slot, n)
+					self.set_acc_val(slot, v)
+					self.set_max_prepare(slot, n)
 				source = (source[0], self.server_config[msg["ID"]]["PROPOSER_PORT"])
 				# Send an ack message
 				self.ack(slot, source)
