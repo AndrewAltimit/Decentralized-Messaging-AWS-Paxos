@@ -44,7 +44,7 @@ class Acceptor():
 	def listen(self):
 		try:
 			self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
-			self.sock.bind((self.IP, self.port))
+			self.sock.bind(('', self.port))
 			while True:
 				msg, source = self.sock.recvfrom(4096)
 
