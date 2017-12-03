@@ -84,10 +84,6 @@ class Acceptor():
 		else:
 			return
 
-		# Leader can skip to ACCEPT stage
-		if self.log.is_leader(slot, ID) and msg_type == "PROPOSE":
-			msg_type = "ACCEPT"
-
 		if msg_type == "PROPOSE":
 			if (self.get_max_prepare(slot) is None) or (n > self.get_max_prepare(slot)) or (n == (0, 0)):
 				if n != (0, 0):
@@ -96,7 +92,7 @@ class Acceptor():
 				self.promise(slot, source)
 		elif msg_type == "ACCEPT":
 			# Determine whether to send an ack message and update state
-			if (n==(0, 0) or ((self.get_max_prepare(slot) is not None) and (n >= self.get_max_prepare(slot)))):
+			if (n==(0, 0) or (self.get_max_prepare(slot) is None) or (n >= self.get_max_prepare(slot))):
 				v = msg["EVENT"]
 				if n != (0, 0):
 					self.set_acc_num(slot, n)

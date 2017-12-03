@@ -99,32 +99,37 @@ class Proposer():
 		n = (self.event_counter[slot],self.ID)
 		print("[PROPOSER] Slot: {} Proposal Number: {}".format(slot,n))
 
-		# Send proposal
-		self.propose(slot, n)
+		# Leader can skip to ACCEPT stage
+		if not self.log.is_leader(slot, self.ID):
+			# Send proposal
+			self.propose(slot, n)
 
-		# Wait for Promise Messages
-		current_time = time.time()
-		while ((time.time() - current_time) < TIMEOUT) and (len(self.get_promises(slot)) < self.majority_size):
-			time.sleep(.01)
-		responses = self.get_promises(slot)
+			# Wait for Promise Messages
+			current_time = time.time()
+			while ((time.time() - current_time) < TIMEOUT) and (len(self.get_promises(slot)) < self.majority_size):
+				time.sleep(.01)
+			responses = self.get_promises(slot)
 
-		# If not enough responses received, return False as the insertion failed
-		if len(responses) < self.majority_size:
-			print("[PROPOSER] Failure to receive majority of promise messages")
-			return False
+			# If not enough responses received, return False as the insertion failed
+			if len(responses) < self.majority_size:
+				print("[PROPOSER] Failure to receive majority of promise messages")
+				return False
 
-		# Display received messages
-		self.display_promise_messages(responses)
+			# Display received messages
+			self.display_promise_messages(responses)
 
-		# Filter out responses with null values
-		responses = list(filter(lambda x: (x[0] is not None) and (x[1] is not None), responses))
+			# Filter out responses with null values
+			responses = list(filter(lambda x: (x[0] is not None) and (x[1] is not None), responses))
 
-		# Determine v to use
-		if len(responses) == 0:
-			v = event
+			# Determine v to use
+			if len(responses) == 0:
+				v = event
+			else:
+				responses.sort(key=lambda x: x[0])
+				v = responses[-1][1]
 		else:
-			responses.sort(key=lambda x: x[0])
-			v = responses[-1][1]
+			print("[PROPOSER] Leader for slot {}, skiping to ACCEPT phase".format(self.ID))
+			v = event
 
 		# Send accept message
 		self.accept(slot, n, v)
