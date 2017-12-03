@@ -25,13 +25,6 @@ class Proposer():
 		self.IP = server_config[ID]["IP"]
 		self.port = server_config[ID]["PROPOSER_PORT"]
 
-		# Array of known leaders
-		if os.path.isfile("proposer_{}_LL".format(self.ID)):
-			self.leader_list = pickle.load(open("proposer_{}_LL.log".format(self.ID), "rb" ))
-		else:
-			self.leader_list = [None] * ARRAY_INIT_SIZE
-			self.leader_list[0] = 0 # Nobody is the leader for the first slot
-
 		# Array of event counts for each slot (n)
 		self.event_counter = [0] * ARRAY_INIT_SIZE
 
@@ -91,9 +84,9 @@ class Proposer():
 		self.message_buffer.append((recv_timestamp, msg))
 
 		# Display Debug Information
-		type = msg["TYPE"]
+		msg_type = msg["TYPE"]
 		s1 = "Server: [{}   {}]".format(self.ID, "PROPOSER")
-		s2 = "Status: [{} {}]".format("RECEIVED", type)
+		s2 = "Status: [{} {}]".format("RECEIVED", msg_type)
 		s3 = "Source:      [{}:{}]".format(source[0], source[1])
 		print("{:<40} {:<40} {:<40}".format(s1, s2, s3))
 
@@ -106,36 +99,32 @@ class Proposer():
 		n = (self.event_counter[slot],self.ID)
 		print("[PROPOSER] Slot: {} Proposal Number: {}".format(slot,n))
 
-		# Send proposal if not the leader
-		if self.isLeader(slot):
-			print("[PROPOSER] Leader for slot {}, skipping to accept phase".format(slot))
+		# Send proposal
+		self.propose(slot, n)
+
+		# Wait for Promise Messages
+		current_time = time.time()
+		while ((time.time() - current_time) < TIMEOUT) and (len(self.get_promises(slot)) < self.majority_size):
+			time.sleep(.01)
+		responses = self.get_promises(slot)
+
+		# If not enough responses received, return False as the insertion failed
+		if len(responses) < self.majority_size:
+			print("[PROPOSER] Failure to receive majority of promise messages")
+			return False
+
+		# Display received messages
+		self.display_promise_messages(responses)
+
+		# Filter out responses with null values
+		responses = list(filter(lambda x: (x[0] is not None) and (x[1] is not None), responses))
+
+		# Determine v to use
+		if len(responses) == 0:
 			v = event
 		else:
-			self.propose(slot, n)
-
-			# Wait for Promise Messages
-			current_time = time.time()
-			while ((time.time() - current_time) < TIMEOUT) and (len(self.get_promises(slot)) < self.majority_size):
-				time.sleep(.01)
-			responses = self.get_promises(slot)
-
-			# If not enough responses received, return False as the insertion failed
-			if len(responses) < self.majority_size:
-				print("[PROPOSER] Failure to receive majority of promise messages")
-				return False
-
-			# Display received messages
-			self.display_promise_messages(responses)
-
-			# Filter out responses with null values
-			responses = list(filter(lambda x: (x[0] is not None) and (x[1] is not None), responses))
-
-			# Determine v to use
-			if len(responses) == 0:
-				v = event
-			else:
-				responses.sort(key=lambda x: x[0])
-				v = responses[-1][1]
+			responses.sort(key=lambda x: x[0])
+			v = responses[-1][1]
 
 		# Send accept message
 		self.accept(slot, n, v)
@@ -235,12 +224,6 @@ class Proposer():
 		# Send Commit Message
 		msg = {"TYPE": "COMMIT", "SLOT": slot, "EVENT": event, "ID": self.ID}
 		self.send_all_learners(msg)
-
-	def get_ID_from_username(self, username):
-		for ID in self.server_config:
-			if self.server_config[ID]["USERNAME"].title() == username.title():
-				return ID
-		return 0
 
 	# Return all promises on the message queue which correspond to slot
 	def get_promises(self, slot):
@@ -348,38 +331,6 @@ class Proposer():
 		return False
 
 
-	# Return True/False if self is the leader for a given slot
-	def isLeader(self, slot):
-		return (self.getLeader(slot) == self.ID)
-
-	# Get the known leader (if any) for a particular slot
-	# None is returned if no known leader exists
-	def getLeader(self, slot):
-		# If the leader is unknown, return 0
-		if slot >= len(self.leader_list) or self.leader_list[slot] is None:
-			return 0
-
-		return self.leader_list[slot]
-
-	# Set the known leader for a particular slot
-	def setLeader(self, slot, ID):
-		with self.lock:
-			while len(self.leader_list) - 1 < slot:
-				self.extend_leader_list()
-			self.leader_list[slot] = ID
-			pickle.dump(self.leader_list, open("proposer_{}_LL.log".format(self.ID), "wb" ))
-
-	def view_leader_list(self):
-		output = "{:-^120}\n".format("LEADER LIST")
-		for i in range(1, len(self.leader_list)):
-			output += "SLOT {}: {}\n".format(i, str(self.getLeader(i)))
-		output += "-" * 120
-		print(output)
-
-	# Extend the leader list to twice it's size
-	def extend_leader_list(self):
-		size = len(self.leader_list)
-		self.leader_list.extend([None] * size)
 
 	# Increment event counter for a particular slot
 	def increment_event_counter(self, slot):

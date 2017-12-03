@@ -8,10 +8,11 @@ ARRAY_INIT_SIZE = 8
 
 # Log Class
 class Log():
-	def __init__(self, ID, username):
+	def __init__(self, ID, server_config, username):
 		print("{:-^120}".format("INITIALIZING LOG"))
 
 		self.ID = ID
+		self.server_config = server_config
 		self.filenames = {\
 		"LOG" : "server_{}_log.log".format(ID), \
 		"TIMELINE" : "server_{}_timeline.log".format(ID),\
@@ -189,3 +190,22 @@ class Log():
 
 	def increment_checkpoint(self):
 		self.checkpoint += 1
+
+	# Return the leader for a given slot
+	def is_leader(self, slot, ID):
+		# Look in previous slot
+		slot = slot - 1
+		if slot <= 0:
+			return 0
+
+		event = self.get_entry(slot)
+		if event is None:
+			return 0
+
+		return ID == self.get_ID_from_username(event.username)
+
+	def get_ID_from_username(self, username):
+		for ID in self.server_config:
+			if self.server_config[ID]["USERNAME"].title() == username.title():
+				return ID
+		return 0

@@ -83,11 +83,11 @@ if __name__ == "__main__":
 	username = all_servers[server_ID]["USERNAME"]
 
 	# Initialize the log
-	log = log_module.Log(server_ID, username)
+	log = log_module.Log(server_ID, all_servers, username)
 
 	# Create proposer, acceptor, and learner
 	proposer = proposer_module.Proposer(server_ID, all_servers, log)
-	acceptor = acceptor_module.Acceptor(server_ID, all_servers)
+	acceptor = acceptor_module.Acceptor(server_ID, all_servers, log)
 	learner = learner_module.Learner(server_ID, all_servers, log)
 
 	# Message Sending Test
@@ -96,7 +96,7 @@ if __name__ == "__main__":
 	proposer.update_log()
 
 	# GUI - Terminate on Quit/Exit Command
-	valid_commands = ["tweet", "block", "unblock", "view", "blocklist", "leaders", "log", "servers", "drop", "exit"]
+	valid_commands = ["tweet", "block", "unblock", "view", "blocklist", "log", "servers", "drop", "exit"]
 	show_commands(valid_commands)
 	while True:
 		text = input("Server {} => ".format(server_ID))
@@ -166,9 +166,6 @@ if __name__ == "__main__":
 				acceptor.drop_messages(drop_num)
 			elif dropee == "learner":
 				learner.drop_messages(drop_num)
-
-		elif command == "leaders":
-			proposer.view_leader_list()
 
 		elif command == "exit":
 			break

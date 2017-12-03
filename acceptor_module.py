@@ -10,8 +10,9 @@ ARRAY_INIT_SIZE = 8
 
 # Acceptor Class
 class Acceptor():
-	def __init__(self, ID, server_config):
+	def __init__(self, ID, server_config, log):
 		self.ID = ID
+		self.log = log
 		self.server_config = server_config
 
 		# IP/Port Configuration for this Acceptor
@@ -27,8 +28,8 @@ class Acceptor():
 		# Arrays for the status of each round (load from disk if they exit)
 		self.filenames = {\
 		"MAX_PREPARE_LIST" : "acceptor_{}_MPL.log".format(ID), \
-		"ACC_NUM_LIST" : "acceptor_{}_ACL.log".format(ID),\
-		"ACC_VAL_LIST" : "acceptor_{}_AVL.log".format(ID)}
+		"ACC_NUM_LIST" : "acceptor_{}_ACL.log".format(ID), \
+		"LEADER_LIST"  : "acceptor_{}_LL.log".format(ID)}
 
 		if self.files_exist():
 			self.load_data()
@@ -69,23 +70,31 @@ class Acceptor():
 		msg = pickle.loads(msg)
 
 		# Display Debug Information
-		type = msg["TYPE"]
+		msg_type = msg["TYPE"]
 		s1 = "Server: [{}   {}]".format(self.ID, "ACCEPTOR")
-		s2 = "Status: [{} {}]".format("RECEIVED", type)
+		s2 = "Status: [{} {}]".format("RECEIVED", msg_type)
 		s3 = "Source:      [{}:{}]".format(source[0], source[1])
 		print("{:<40} {:<40} {:<40}".format(s1, s2, s3))
 
-		if type == "PROPOSE":
+		# Extract info
+		if ("SLOT" in msg.keys()) and ("N" in msg.keys()) and ("ID" in msg.keys()):
 			slot = msg["SLOT"]
 			n = msg["N"]
+			ID = msg["ID"]
+		else:
+			return
+
+		# Leader can skip to ACCEPT stage
+		if self.log.is_leader(slot, ID) and msg_type == "PROPOSE":
+			msg_type = "ACCEPT"
+
+		if msg_type == "PROPOSE":
 			if (self.get_max_prepare(slot) is None) or (n > self.get_max_prepare(slot)) or (n == (0, 0)):
 				if n != (0, 0):
 					self.set_max_prepare(slot, n)
 				source = (source[0], self.server_config[msg["ID"]]["PROPOSER_PORT"])
 				self.promise(slot, source)
-		elif type == "ACCEPT":
-			slot = msg["SLOT"]
-			n = msg["N"]
+		elif msg_type == "ACCEPT":
 			# Determine whether to send an ack message and update state
 			if (n==(0, 0) or (n >= self.get_max_prepare(slot))):
 				v = msg["EVENT"]
