@@ -96,7 +96,7 @@ class Acceptor():
 				self.promise(slot, source)
 		elif msg_type == "ACCEPT":
 			# Determine whether to send an ack message and update state
-			if (n==(0, 0) or (n >= self.get_max_prepare(slot))):
+			if (n==(0, 0) or ((self.get_max_prepare(slot) is not None) and (n >= self.get_max_prepare(slot)))):
 				v = msg["EVENT"]
 				if n != (0, 0):
 					self.set_acc_num(slot, n)

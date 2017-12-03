@@ -195,7 +195,7 @@ class Log():
 	def is_leader(self, slot, ID):
 		# Look in previous slot
 		slot = slot - 1
-		if slot <= 0:
+		if slot < 0:
 			return 0
 
 		event = self.get_entry(slot)
