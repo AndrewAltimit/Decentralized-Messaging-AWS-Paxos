@@ -262,7 +262,7 @@ class Proposer():
 	# thread that runs continuously, every 60 seconds it
 	def hole_filler(self):
 		while True:
-			time.sleep(10)
+			time.sleep(60)
 			self.fill_holes()
 
 	# Attempt to learn newer entries beyond the latest known log entry
