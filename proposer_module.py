@@ -252,10 +252,10 @@ class Proposer():
 	# returns a list of indices where any holes exist in the log
 	def find_holes(self):
 		holes = []
-		Log = self.log.get_log()
+		log = self.log.get_log()
 		end = self.log.get_next_available_slot()
 		for i in range(end - 2, -1, -1):
-			if Log[i] is None:
+			if log[i] is None:
 				holes.append(i)
 		return holes
 

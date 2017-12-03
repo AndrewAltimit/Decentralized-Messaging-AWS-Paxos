@@ -49,9 +49,7 @@ class Learner():
 			
 	# Process the received message
 	def process_message(self, msg, source):
-		print("GOT HERE")
 		msg = pickle.loads(msg)
-		print(msg)
 		
 		# Display Debug Information
 		type = msg["TYPE"]
