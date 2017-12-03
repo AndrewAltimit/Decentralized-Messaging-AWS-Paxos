@@ -10,7 +10,7 @@ ARRAY_INIT_SIZE = 8
 class Log():
 	def __init__(self, ID, username):
 		print("{:-^120}".format("INITIALIZING LOG"))
-		
+
 		self.ID = ID
 		self.filenames = {\
 		"LOG" : "server_{}_log.log".format(ID), \
@@ -19,12 +19,12 @@ class Log():
 		self.lock = _thread.allocate_lock()
 		self.username = username
 		self.checkpoint = 0
-	
+
 		# Initialize log, timeline, and block list
 		self.events_log = [None] * ARRAY_INIT_SIZE
 		self.timeline = []
 		self.blocks = set()
-		
+
 		# Recover from files if they exist
 		if os.path.isfile(self.filenames["TIMELINE"]):
 			self.timeline = pickle.load(open(self.filenames["TIMELINE"], "rb" ))
@@ -32,16 +32,16 @@ class Log():
 			self.blocks = pickle.load(open(self.filenames["BLOCKLIST"], "rb" ))
 		if os.path.isfile(self.filenames["LOG"]):
 			self.load_log()
-		
+
 		print("[LOG] Checkpoint:", self.checkpoint)
 		print("-" * 120)
-			
-		
-		
+
+
+
 	def load_log(self):
 		# open the file of current server for write
 		f = open(self.filenames["LOG"], 'rb')
-		
+
 		replay_events = []
 		while True:
 			# unpickle each pickle container until reach the end
@@ -52,7 +52,7 @@ class Log():
 					replay_events = []
 				else:
 					replay_events.append(event)
-				
+
 
 				# extend events_log when needed
 				while len(self.events_log) - 1 < slot:
@@ -62,18 +62,18 @@ class Log():
 			except EOFError:
 				break
 		f.close()
-		
+
 		# Replay events (up to 4 of the latest events from the log file)
 		self.replay(replay_events)
-		
+
 	def replay(self, events):
 		print("[LOG] Replaying {} events...".format(len(events)))
 		for i in range(len(events)):
 			print("[LOG] {} - {}".format(i + 1, str(events[i])))
 			self.process_event_internally(events[i])
 		print("[LOG] Finished replaying events")
-		
-	def write(self, slot, event):			
+
+	def write(self, slot, event):
 		with self.lock:
 			# Write to file
 			# open the file of current server for write in append mode
@@ -81,15 +81,16 @@ class Log():
 			# write in (slot, event_obj)
 			pickle.dump((slot,event), f)
 			f.close()
-			
-			
 
-				
+	def get_log(self):
+		return self.events_log
+
+
 	def store_timeline(self):
 		with self.lock:
 			pickle.dump(self.timeline, open(self.filenames["TIMELINE"], "wb" ))
-	
-				
+
+
 	def store_blocklist(self):
 		with self.lock:
 			pickle.dump(self.blocks, open(self.filenames["BLOCKLIST"], "wb" ))
@@ -100,32 +101,32 @@ class Log():
 		if slot >= len(self.events_log):
 			return None
 		return self.events_log[slot]
-		
+
 	def set_entry(self, slot, event):
 		# Do not write to the log if it is already present
 		if self.get_entry(slot) is not None:
 			return
-			
+
 		print("[LOG] Adding entry -> {}".format(str(event)))
-			
+
 		# Add event to in-memory data structure
 		while len(self.events_log) - 1 < slot:
 			self.extend_events_log()
 		self.events_log[slot] = event
-		
+
 		# Add event to disk
 		self.write(slot, event)
-		
+
 		# Add event to in-memory data structure
 		self.process_event_internally(event)
-		
+
 		# Increment and potentially store checkpoints
 		self.increment_checkpoint()
 		if self.checkpoint % 5 == 0:
 			self.store_timeline()
 			self.store_blocklist()
-		
-			
+
+
 	def process_event_internally(self, event):
 		# Event Type Procedure:
 		# Tweet       -> Add to Timeline
@@ -139,51 +140,51 @@ class Log():
 		elif type(event) == DeleteBlock:
 			self.blocks -= set([event.convert_to_IB()])
 			self.rebuild_timeline()
-			
+
 	def rebuild_timeline(self):
 		self.timeline = []
 		for event in self.events_log:
 			if type(event) == Tweet and self.is_viewable(event):
 				self.timeline.append(event)
-	
+
 	def extend_events_log(self):
 		size = len(self.events_log)
 		self.events_log.extend([None] * size)
-		
+
 	# Return the next available slot (slot after last filled entry)
 	def get_next_available_slot(self):
 		for i in range(len(self.events_log) - 1, -1, -1):
 			if self.events_log[i] is not None:
 				return i + 1
 		return 0
-		
+
 	def is_viewable(self, event):
 		for block in self.blocks:
 			# If the event username matches an InsertBlock initiator, is our user the blockee?
 			if (event.username == block.username) and (block.follower == self.username):
 				return False
 		return True
-		
+
 	def view_timeline(self):
 		output = "{:-^120}\n".format("TIMELINE")
 		for event in sorted(self.timeline, reverse = True):
 			output += str(event) + "\n"
 		output += "-" * 120
 		print(output)
-		
+
 	def view_log(self):
 		output = "{:-^120}\n".format("LOG CONTENTS")
 		for i in range(len(self.events_log)):
 			output += "SLOT {}: {}\n".format(i + 1, str(self.events_log[i]))
 		output += "-" * 120
 		print(output)
-	
+
 	def view_blocklist(self):
 		output = "{:-^120}\n".format("BLOCK LIST")
 		for block in self.blocks:
 			output += str(block) + "\n"
 		output += "-" * 120
 		print(output)
-	
+
 	def increment_checkpoint(self):
 		self.checkpoint += 1

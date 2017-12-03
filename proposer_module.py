@@ -46,6 +46,9 @@ class Proposer():
 		# Start garbage collection thread for message buffer
 		_thread.start_new_thread(self.message_buffer_garbage_collector, ())
 
+		# Start the hole filling thread that checks for log holes
+		_thread.start_new_thread(self.hole_filler, ())
+
 	# Listen for incoming connections by binding to the socket specified in the hosts file
 	def listen(self):
 		try:
@@ -225,25 +228,32 @@ class Proposer():
 				acks.append((msg["ACC_NUM"], msg["ACC_VAL"]))
 		return acks
 
+	def clear_buffer(self):
+		self.message_buffer = []
+
 	# Search the log for gaps of knowledge. Fill these in with Synod Algorithm
 	def fill_holes(self):
 		H = self.find_holes()
+		print('[################HOLES################]: ', H)
 		for s in H:
 		  while not self.insert_event_at(s, 0):
 			  time.sleep(10)
 
-	def clear_buffer(self):
-		self.message_buffer = []
-
 	# returns a list of indices where any holes exist in the log
 	def find_holes(self):
 		holes = []
-		Log = self.log.getLog()
+		Log = self.log.get_log()
 		end = self.log.get_next_available_slot()
 		for i in range(end - 2, -1, -1):
 			if Log[i] is None:
 				holes.append(i)
 		return holes
+
+	# thread that runs continuously, every 60 seconds it
+	def hole_filler(self):
+		while True:
+			time.sleep(60)
+			self.fill_holes()
 
 	# Attempt to learn newer entries beyond the latest known log entry
 	def update_log(self):
