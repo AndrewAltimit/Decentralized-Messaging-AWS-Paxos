@@ -37,11 +37,14 @@ class Proposer():
 		# Message Buffer
 		self.message_buffer = []
 		
-		# Time for the listening thread to sleep (used for debug purposes)
-		self.sleep_timer = 0
+		# Number of messages for the listening thread to drop (used for debug purposes)
+		self.drop_counter = 0
 
 		# Persistent Sending Socket
 		self.send_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
+		
+		# Lock for reading/writing to arrays
+		self.lock = _thread.allocate_lock()
 
 		# Start listening thread for incoming messages
 		_thread.start_new_thread(self.listen, ())
@@ -60,10 +63,10 @@ class Proposer():
 			while True:
 				msg, source = self.sock.recvfrom(4096)
 				
-				# Sleep if requested to by the user
-				while self.sleep_timer > 0:
-					time.sleep(1)
-					self.sleep_timer -= 1
+				# Drop messages if requested to by the user
+				if self.drop_counter > 0:
+					self.drop_counter -= 1
+					continue
 					
 				# Process message on a thread
 				_thread.start_new_thread(self.process_message, (msg, source,))
@@ -153,9 +156,8 @@ class Proposer():
 		slot = s
 
 		# Send proposal
-		self.increment_event_counter(slot)
-		n = (self.event_counter[slot],self.ID)
-		print("[PROPOSER] Slot: {} Proposal Number: {}".format(slot,n))
+		n = (0,0)
+		print("[PROPOSER] Slot: {} Proposal Number: {}".format(slot + 1, n))
 		self.propose(slot, n)
 
 		# Wait for Promise Messages
@@ -177,7 +179,7 @@ class Proposer():
 
 		# Determine v to use
 		if len(responses) == 0:
-			v = event
+			return False
 		else:
 			responses.sort(key=lambda x: x[0])
 			v = responses[-1][1]
@@ -412,6 +414,6 @@ class Proposer():
 			output += " ({},{})".format(acc_num, acc_val)
 		print(output)
 		
-	# Sleep the listening thread for the requested number of seconds
-	def sleep(self, seconds):
-		self.sleep_timer = seconds
+	# Drop the requested number of messages in the listening thread
+	def drop_messages(self, num_messages):
+		self.drop_counter = num_messages

@@ -1,6 +1,6 @@
 import socket
 import _thread
-import os, sys
+import os, sys, traceback
 import pickle
 import time
 from event_module import *
@@ -16,8 +16,8 @@ class Learner():
 		self.IP = server_config[ID]["IP"]
 		self.port = server_config[ID]["LEARNER_PORT"]
 		
-		# Time for the listening thread to sleep (used for debug purposes)
-		self.sleep_timer = 0
+		# Number of messages for the listening thread to drop (used for debug purposes)
+		self.drop_counter = 0
 		
 		# Persistent Sending Socket
 		self.send_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
@@ -34,21 +34,24 @@ class Learner():
 			while True:
 				msg, source = self.sock.recvfrom(4096)
 				
-				# Sleep if requested to by the user
-				while self.sleep_timer > 0:
-					time.sleep(1)
-					self.sleep_timer -= 1
+				# Drop messages if requested to by the user
+				if self.drop_counter > 0:
+					self.drop_counter -= 1
+					continue
 				
 				# Process message on a thread
 				_thread.start_new_thread(self.process_message, (msg, source,))
 				
 		except:
+			traceback.print_exc(file=sys.stdout)
 			# Restart listening thread
 			_thread.start_new_thread(self.listen, ())
 			
 	# Process the received message
 	def process_message(self, msg, source):
+		print("GOT HERE")
 		msg = pickle.loads(msg)
+		print(msg)
 		
 		# Display Debug Information
 		type = msg["TYPE"]
@@ -77,6 +80,6 @@ class Learner():
 		except:
 			pass
 		
-	# Sleep the listening thread for the requested number of seconds
-	def sleep(self, seconds):
-		self.sleep_timer = seconds
+	# Drop the requested number of messages in the listening thread
+	def drop_messages(self, num_messages):
+		self.drop_counter = num_messages

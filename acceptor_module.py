@@ -21,8 +21,8 @@ class Acceptor():
 		# Lock for reading/writing to arrays
 		self.lock = _thread.allocate_lock()
 		
-		# Time for the listening thread to sleep (used for debug purposes)
-		self.sleep_timer = 0
+		# Number of messages for the listening thread to drop (used for debug purposes)
+		self.drop_counter = 0
 
 		# Arrays for the status of each round (load from disk if they exit)
 		self.filenames = {\
@@ -52,10 +52,10 @@ class Acceptor():
 			while True:
 				msg, source = self.sock.recvfrom(4096)
 				
-				# Sleep if requested to by the user
-				while self.sleep_timer > 0:
-					time.sleep(1)
-					self.sleep_timer -= 1
+				# Drop messages if requested to by the user
+				if self.drop_counter > 0:
+					self.drop_counter -= 1
+					continue
 
 				# Process message on a thread
 				_thread.start_new_thread(self.process_message, (msg, source,))
@@ -199,6 +199,6 @@ class Acceptor():
 		self.acc_val_list = pickle.load(open(self.filenames["ACC_VAL_LIST"], "rb" ))
 		
 		
-	# Sleep the listening thread for the requested number of seconds
-	def sleep(self, seconds):
-		self.sleep_timer = seconds
+	# Drop the requested number of messages in the listening thread
+	def drop_messages(self, num_messages):
+		self.drop_counter = num_messages

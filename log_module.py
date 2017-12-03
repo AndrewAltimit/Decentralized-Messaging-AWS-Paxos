@@ -148,8 +148,9 @@ class Log():
 				self.timeline.append(event)
 
 	def extend_events_log(self):
-		size = len(self.events_log)
-		self.events_log.extend([None] * size)
+		with self.lock:
+			size = len(self.events_log)
+			self.events_log.extend([None] * size)
 
 	# Return the next available slot (slot after last filled entry)
 	def get_next_available_slot(self):
