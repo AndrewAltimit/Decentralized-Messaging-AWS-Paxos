@@ -102,7 +102,7 @@ class Proposer():
 		
 		# Leader can skip to ACCEPT stage, otherwise run PREPARE phase
 		if self.log.is_leader(slot, self.ID):
-			print("[PROPOSER] Leader for slot {}, skiping to ACCEPT phase".format(self.ID))
+			print("[PROPOSER] Leader for slot {}, skipping to ACCEPT phase".format(slot + 1))
 			v = event
 		else:
 			# PREPARE Phase
@@ -182,37 +182,43 @@ class Proposer():
 		self.increment_event_counter(slot)
 		n = (0,0)
 		print("[PROPOSER] Slot: {} Proposal Number: {}".format(slot + 1, n))
-		self.propose(slot, n)
-
-		# Wait for Promise Messages
-		current_time = time.time()
-		while ((time.time() - current_time) < TIMEOUT) and (len(self.get_promises(slot)) < self.majority_size):
-			time.sleep(.01)
-		responses = self.get_promises(slot)
-
-		# If not enough responses received, return False as the insertion failed
-		if len(responses) < self.majority_size:
-			print("[PROPOSER] Failure to receive majority of promise messages")
-			if updating_log:
-				return True
-			else:
-				return False
-
-		# Display received messages
-		self.display_promise_messages(responses)
-
-		# Filter out responses with null values
-		responses = list(filter(lambda x: (x[0] is not None) and (x[1] is not None), responses))
-
-		# Determine v to use
-		if len(responses) == 0:
-			if updating_log:
-				return True
-			else:
-				return False
+		
+		# Leader can skip to ACCEPT stage, otherwise run PREPARE phase
+		if self.log.is_leader(slot, self.ID):
+			print("[PROPOSER] Leader for slot {}, skipping to ACCEPT phase".format(slot + 1))
+			v = event
 		else:
-			responses.sort(key=lambda x: x[0])
-			v = responses[-1][1]
+			self.propose(slot, n)
+
+			# Wait for Promise Messages
+			current_time = time.time()
+			while ((time.time() - current_time) < TIMEOUT) and (len(self.get_promises(slot)) < self.majority_size):
+				time.sleep(.01)
+			responses = self.get_promises(slot)
+
+			# If not enough responses received, return False as the insertion failed
+			if len(responses) < self.majority_size:
+				print("[PROPOSER] Failure to receive majority of promise messages")
+				if updating_log:
+					return True
+				else:
+					return False
+
+			# Display received messages
+			self.display_promise_messages(responses)
+
+			# Filter out responses with null values
+			responses = list(filter(lambda x: (x[0] is not None) and (x[1] is not None), responses))
+
+			# Determine v to use
+			if len(responses) == 0:
+				if updating_log:
+					return True
+				else:
+					return False
+			else:
+				responses.sort(key=lambda x: x[0])
+				v = responses[-1][1]
 
 		# Send accept message
 		self.accept(slot, n, v)
@@ -227,6 +233,15 @@ class Proposer():
 		if len(responses) < self.majority_size:
 			print("[PROPOSER] Failure to receive majority of ACK messages")
 			return False
+			
+		# Filter out responses with null values
+		responses = list(filter(lambda x: (x[0] is not None) and (x[1] is not None), responses))
+		
+		if len(responses) == 0 and updating_log:
+			return True
+			
+		responses.sort(key=lambda x: x[0])
+		v = responses[-1][1]
 
 		# Send commit message
 		self.commit(slot, v)

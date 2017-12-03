@@ -145,7 +145,7 @@ if __name__ == "__main__":
 		elif command == "unblock":
 			blockee = " ".join(parsed_text).title()
 			if blockee == username:
-				print("Error: You can not block yourself.")
+				print("Error: You can not unblock yourself.")
 				continue
 
 			# Repeatedly run the synod algorithm until successful
