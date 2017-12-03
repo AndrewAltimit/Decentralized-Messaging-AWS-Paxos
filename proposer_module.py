@@ -244,9 +244,9 @@ class Proposer():
 
 	# Search the log for gaps of knowledge. Fill these in with Synod Algorithm
 	def fill_holes(self):
-		H = self.find_holes()
-		for s in H:
-			self.learn_slot(s)
+		holes = self.find_holes()
+		for slot in holes:
+			self.learn_slot(slot)
 
 
 	# returns a list of indices where any holes exist in the log
