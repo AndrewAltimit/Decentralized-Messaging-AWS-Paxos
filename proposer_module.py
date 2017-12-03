@@ -14,6 +14,9 @@ TIMEOUT = 1
 # Time between each garbage collection procedure on the message buffer (remove expired messages)
 GARBAGE_COLLECT_FREQ = TIMEOUT * 3
 
+# Time for the listening thread to sleep (used for debug purposes)
+SLEEP = 0
+
 # Proposer Class
 class Proposer():
 	def __init__(self, ID, server_config, log):
@@ -56,7 +59,12 @@ class Proposer():
 			self.sock.bind((self.IP, self.port))
 			while True:
 				msg, source = self.sock.recvfrom(4096)
-
+				
+				# Sleep if requested to by the user
+				while self.sleep > 0:
+					time.sleep(1)
+					self.sleep -= 1
+					
 				# Process message on a thread
 				_thread.start_new_thread(self.process_message, (msg, source,))
 
@@ -403,3 +411,7 @@ class Proposer():
 		for acc_num, acc_val in messages:
 			output += " ({},{})".format(acc_num, acc_val)
 		print(output)
+		
+	# Sleep the listening thread for the requested number of seconds
+	def sleep(self, seconds):
+		self.sleep = seconds

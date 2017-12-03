@@ -7,6 +7,9 @@ from event_module import *
 # Initial array sizes, double as needed for each reallocation
 ARRAY_INIT_SIZE = 8
 
+# Time for the listening thread to sleep (used for debug purposes)
+SLEEP = 0
+
 # Acceptor Class
 class Acceptor():
 	def __init__(self, ID, server_config):
@@ -47,6 +50,11 @@ class Acceptor():
 			self.sock.bind((self.IP, self.port))
 			while True:
 				msg, source = self.sock.recvfrom(4096)
+				
+				# Sleep if requested to by the user
+				while self.sleep > 0:
+					time.sleep(1)
+					self.sleep -= 1
 
 				# Process message on a thread
 				_thread.start_new_thread(self.process_message, (msg, source,))
@@ -188,3 +196,8 @@ class Acceptor():
 		self.max_prepare_list = pickle.load(open(self.filenames["MAX_PREPARE_LIST"], "rb" ))
 		self.acc_num_list = pickle.load(open(self.filenames["ACC_NUM_LIST"], "rb" ))
 		self.acc_val_list = pickle.load(open(self.filenames["ACC_VAL_LIST"], "rb" ))
+		
+		
+	# Sleep the listening thread for the requested number of seconds
+	def sleep(self, seconds):
+		self.sleep = seconds

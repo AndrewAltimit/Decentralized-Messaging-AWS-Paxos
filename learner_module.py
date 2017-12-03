@@ -4,6 +4,8 @@ import os, sys
 import pickle
 from event_module import *
 
+# Time for the listening thread to sleep (used for debug purposes)
+SLEEP = 0
 
 # Learner Class
 class Learner():
@@ -30,6 +32,11 @@ class Learner():
 			self.sock.bind((self.IP, self.port))
 			while True:
 				msg, source = self.sock.recvfrom(4096)
+				
+				# Sleep if requested to by the user
+				while self.sleep > 0:
+					time.sleep(1)
+					self.sleep -= 1
 				
 				# Process message on a thread
 				_thread.start_new_thread(self.process_message, (msg, source,))
@@ -68,3 +75,7 @@ class Learner():
 			self.send_sock.sendto(msg, (dest_ip, dest_port))
 		except:
 			pass
+		
+	# Sleep the listening thread for the requested number of seconds
+	def sleep(self, seconds):
+		self.sleep = seconds
