@@ -175,12 +175,11 @@ class Proposer():
 		
 
 	# Return True/False if the event was successfully inserted into the latest available slot
-	def learn_slot(self, s):
-		# Get next available slot
-		slot = s
+	def learn_slot(self, slot, updating_log = False):
 		event = 0
-
+		
 		# Send proposal
+		self.increment_event_counter(slot)
 		n = (0,0)
 		print("[PROPOSER] Slot: {} Proposal Number: {}".format(slot + 1, n))
 		self.propose(slot, n)
@@ -194,7 +193,10 @@ class Proposer():
 		# If not enough responses received, return False as the insertion failed
 		if len(responses) < self.majority_size:
 			print("[PROPOSER] Failure to receive majority of promise messages")
-			return False
+			if updating_log:
+				return True
+			else:
+				return False
 
 		# Display received messages
 		self.display_promise_messages(responses)
@@ -204,7 +206,10 @@ class Proposer():
 
 		# Determine v to use
 		if len(responses) == 0:
-			return False
+			if updating_log:
+				return True
+			else:
+				return False
 		else:
 			responses.sort(key=lambda x: x[0])
 			v = responses[-1][1]
@@ -226,6 +231,9 @@ class Proposer():
 		# Send commit message
 		self.commit(slot, v)
 
+		if updating_log:
+			return False
+			
 		return True
 
 
@@ -287,71 +295,16 @@ class Proposer():
 			else:
 				print("[HOLE DETECTOR] Found the following holes in the log:", holes)
 			for slot in holes:
-				self.learn_slot(slot)
+				self.learn_slot(slot, False)
 
 	# Attempt to learn newer entries beyond the latest known log entry
 	def update_log(self):
 		done = False
 		while not done:
 			self.clear_buffer()
-			done = self.learn_next_slot()
+			slot = self.log.get_next_available_slot()
+			done = self.learn_slot(slot, True)
 			time.sleep(0.1)
-
-	# Learn the next available slot
-	def learn_next_slot(self):
-		# Get next available slot
-		slot = self.log.get_next_available_slot()
-
-		# Send proposal
-		self.increment_event_counter(slot)
-		n = (0, 0)
-		print("[PROPOSER] Slot: {} Proposal Number: {}".format(slot,n))
-		self.propose(slot, n)
-
-		# Wait for Promise Messages
-		current_time = time.time()
-		while ((time.time() - current_time) < TIMEOUT) and (len(self.get_promises(slot)) < self.majority_size):
-			time.sleep(.01)
-		responses = self.get_promises(slot)
-
-		# If not enough responses received, return False as the insertion failed
-		if len(responses) < self.majority_size:
-			print("[PROPOSER] Failure to receive majority of promise messages")
-			return True
-
-		# Display received messages
-		self.display_promise_messages(responses)
-
-		# Filter out responses with null values
-		responses = list(filter(lambda x: (x[0] is not None) and (x[1] is not None), responses))
-
-		# Determine v to use
-		if len(responses) == 0:
-			return True
-		else:
-			responses.sort(key=lambda x: x[0])
-			v = responses[-1][1]
-
-		# Send accept message
-		self.accept(slot, n, v)
-
-		# Wait for ACK Messages
-		current_time = time.time()
-		while ((time.time() - current_time) < TIMEOUT) and (len(self.get_acks(slot)) < self.majority_size):
-			time.sleep(.01)
-		responses = self.get_acks(slot)
-
-		# If not enough responses received, return False as the insertion failed
-		if len(responses) < self.majority_size:
-			print("[PROPOSER] Failure to receive majority of ACK messages")
-			return False
-
-		# Send commit message
-		self.commit(slot, v)
-
-		return False
-
-
 
 	# Increment event counter for a particular slot
 	def increment_event_counter(self, slot):
