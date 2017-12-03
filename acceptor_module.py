@@ -20,7 +20,7 @@ class Acceptor():
 
 		# Lock for reading/writing to arrays
 		self.lock = _thread.allocate_lock()
-		
+
 		# Number of messages for the listening thread to drop (used for debug purposes)
 		self.drop_counter = 0
 
@@ -51,7 +51,7 @@ class Acceptor():
 			self.sock.bind((self.IP, self.port))
 			while True:
 				msg, source = self.sock.recvfrom(4096)
-				
+
 				# Drop messages if requested to by the user
 				if self.drop_counter > 0:
 					self.drop_counter -= 1
@@ -79,7 +79,8 @@ class Acceptor():
 			slot = msg["SLOT"]
 			n = msg["N"]
 			if (self.get_max_prepare(slot) is None) or (n > self.get_max_prepare(slot) or (n==(0, 0))):
-				self.set_max_prepare(slot, n)
+				if n != (0, 0):
+					self.set_max_prepare(slot, n)
 				source = (source[0], self.server_config[msg["ID"]]["PROPOSER_PORT"])
 				self.promise(slot, source)
 		elif type == "ACCEPT":
@@ -88,9 +89,10 @@ class Acceptor():
 			# Determine whether to send an ack message and update state
 			if (n >= self.get_max_prepare(slot) or (n==(0, 0))):
 				v = msg["EVENT"]
-				self.set_acc_num(slot, n)
-				self.set_acc_val(slot, v)
-				self.set_max_prepare(slot, n)
+				if n != (0, 0):
+					self.set_acc_num(slot, n)
+					self.set_acc_val(slot, v)
+					self.set_max_prepare(slot, n)
 				source = (source[0], self.server_config[msg["ID"]]["PROPOSER_PORT"])
 				# Send an ack message
 				self.ack(slot, source)
@@ -197,8 +199,8 @@ class Acceptor():
 		self.max_prepare_list = pickle.load(open(self.filenames["MAX_PREPARE_LIST"], "rb" ))
 		self.acc_num_list = pickle.load(open(self.filenames["ACC_NUM_LIST"], "rb" ))
 		self.acc_val_list = pickle.load(open(self.filenames["ACC_VAL_LIST"], "rb" ))
-		
-		
+
+
 	# Drop the requested number of messages in the listening thread
 	def drop_messages(self, num_messages):
 		self.drop_counter = num_messages
