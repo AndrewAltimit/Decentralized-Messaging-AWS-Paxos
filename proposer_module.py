@@ -36,13 +36,13 @@ class Proposer():
 
 		# Message Buffer
 		self.message_buffer = []
-		
+
 		# Number of messages for the listening thread to drop (used for debug purposes)
 		self.drop_counter = 0
 
 		# Persistent Sending Socket
 		self.send_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
-		
+
 		# Lock for reading/writing to arrays
 		self.lock = _thread.allocate_lock()
 
@@ -62,12 +62,12 @@ class Proposer():
 			self.sock.bind((self.IP, self.port))
 			while True:
 				msg, source = self.sock.recvfrom(4096)
-				
+
 				# Drop messages if requested to by the user
 				if self.drop_counter > 0:
 					self.drop_counter -= 1
 					continue
-					
+
 				# Process message on a thread
 				_thread.start_new_thread(self.process_message, (msg, source,))
 
@@ -151,9 +151,10 @@ class Proposer():
 		return v == event
 
 	# Return True/False if the event was successfully inserted into the latest available slot
-	def insert_event_at(self, s, event):
+	def learn_slot(self, s):
 		# Get next available slot
 		slot = s
+		event = 0
 
 		# Send proposal
 		n = (0,0)
@@ -204,7 +205,7 @@ class Proposer():
 		# Return True / False depending on whether the value commited
 		# was the original event we were trying to insert
 
-		return v == event
+		return True
 
 
 	# Send propose message to all acceptors
@@ -244,10 +245,9 @@ class Proposer():
 	# Search the log for gaps of knowledge. Fill these in with Synod Algorithm
 	def fill_holes(self):
 		H = self.find_holes()
-		print('[################HOLES################]: ', H)
 		for s in H:
-		  while not self.insert_event_at(s, 0):
-			  time.sleep(10)
+			self.learn_slot(s)
+
 
 	# returns a list of indices where any holes exist in the log
 	def find_holes(self):
@@ -257,12 +257,12 @@ class Proposer():
 		for i in range(end - 2, -1, -1):
 			if log[i] is None:
 				holes.append(i)
-		return holes
+		return holes[::-1]
 
 	# thread that runs continuously, every 60 seconds it
 	def hole_filler(self):
 		while True:
-			time.sleep(60)
+			time.sleep(10)
 			self.fill_holes()
 
 	# Attempt to learn newer entries beyond the latest known log entry
@@ -413,7 +413,7 @@ class Proposer():
 		for acc_num, acc_val in messages:
 			output += " ({},{})".format(acc_num, acc_val)
 		print(output)
-		
+
 	# Drop the requested number of messages in the listening thread
 	def drop_messages(self, num_messages):
 		self.drop_counter = num_messages
