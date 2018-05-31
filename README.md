@@ -4,6 +4,7 @@ Python implementation of a distributed Twitter service. Site backups and messagi
 ## Contributors
  * Andrew Showers
  * Dylan Elliot
+ * Yi Liu
 
 ## Prerequisites
 Python 3.* https://www.python.org/download/
