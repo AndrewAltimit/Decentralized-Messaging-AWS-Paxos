@@ -99,7 +99,7 @@ if __name__ == "__main__":
 	# Message Sending Test
 	# message_test(proposer)
 
-	proposer.update_log()
+	#proposer.update_log()
 
 	# Servers should remain active during the life of the program
 	while True:
