@@ -79,14 +79,8 @@ def get_server_ID(all_servers):
 	return None
 
 if __name__ == "__main__":
-	# Check if all proper input arguments exist
-	if len(sys.argv) != 2:
-		print("Improper number of input arguments")
-		print("USAGE: main.py <Network Hosts File>")
-		sys.exit()
-
 	# Read in command line arguments
-	hosts_filename = sys.argv[1]
+	hosts_filename = "hosts.txt"
 
 	# Parse Config File
 	all_servers = parse_config(hosts_filename)
