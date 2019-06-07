@@ -16,14 +16,19 @@ GARBAGE_COLLECT_FREQ = TIMEOUT * 3
 
 # Proposer Class
 class Proposer():
-	def __init__(self, ID, server_config, log):
+	def __init__(self, ID, server_config, log, local_run = False):
 		self.ID = ID
 		self.log = log
 		self.server_config = server_config
 
 		# IP/Port Configuration for this Proposer
-		self.IP = server_config[ID]["IP"]
-		self.port = server_config[ID]["PROPOSER_PORT"]
+		if local_run:
+			self.IP = ''
+			self.port = 9030
+		else:
+			self.IP = server_config[ID]["IP"]
+			self.port = server_config[ID]["PROPOSER_PORT"]
+		
 
 		# Array of event counts for each slot (n)
 		self.event_counter = [0] * ARRAY_INIT_SIZE
