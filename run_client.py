@@ -6,6 +6,7 @@ import acceptor_module
 import learner_module
 from event_module import *
 import time
+import socket
 
 # Given a hosts file path, parse out server information and store internally in a dictionary
 # Dictionary: Stores all server connection info
