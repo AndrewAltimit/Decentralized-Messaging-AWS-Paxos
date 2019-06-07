@@ -92,14 +92,14 @@ if __name__ == "__main__":
 	log = log_module.Log(server_ID, all_servers, username)
 
 	# Create proposer, acceptor, and learner
-	#proposer = proposer_module.Proposer(server_ID, all_servers, log)
+	proposer = proposer_module.Proposer(server_ID, all_servers, log)
 	acceptor = acceptor_module.Acceptor(server_ID, all_servers)
 	learner = learner_module.Learner(server_ID, all_servers, log)
 
 	# Message Sending Test
 	# message_test(proposer)
 
-	#proposer.update_log()
+	proposer.update_log()
 
 	# Servers should remain active during the life of the program
 	while True:
