@@ -74,7 +74,7 @@ if __name__ == "__main__":
 	# Check if all proper input arguments exist
 	if len(sys.argv) != 3:
 		print("Improper number of input arguments")
-		print("USAGE: launch_servers.py <Host ID> <Network Hosts File>")
+		print("USAGE: launch_client.py <Host ID> <Network Hosts File>")
 		sys.exit()
 
 	# Read in command line arguments
@@ -91,16 +91,87 @@ if __name__ == "__main__":
 	# Initialize the log
 	log = log_module.Log(server_ID, all_servers, username)
 
-	# Create proposer, acceptor, and learner
-	#proposer = proposer_module.Proposer(server_ID, all_servers, log)
-	acceptor = acceptor_module.Acceptor(server_ID, all_servers)
-	learner = learner_module.Learner(server_ID, all_servers, log)
+	# Create proposer
+	proposer = proposer_module.Proposer(server_ID, all_servers, log)
 
 	# Message Sending Test
 	# message_test(proposer)
-
 	proposer.update_log()
 
-	# Servers should remain active during the life of the program
+	# GUI - Terminate on Quit/Exit Command
+	valid_commands = ["tweet", "block", "unblock", "view", "blocklist", "log", "servers", "drop", "commands", "exit"]
+	show_commands(valid_commands)
 	while True:
-		time.sleep(100)
+		text = input("Server {} => ".format(server_ID))
+		if text.strip() == "":
+			continue
+
+		parsed_text = text.split(" ")
+		command = parsed_text.pop(0).lower()
+
+		if command not in valid_commands:
+			print("Invalid Command")
+			continue
+
+		elif command == "servers":
+			show_server_config(all_servers)
+
+		elif command == "view":
+			log.view_timeline()
+
+		elif command == "log":
+			log.view_log()
+
+		elif command == "blocklist":
+			log.view_blocklist()
+
+		elif command == "tweet":
+			# Repeatedly run the synod algorithm until successful
+			event = Tweet(username, " ".join(parsed_text))
+			while not proposer.insert_event(event):
+				print("Failure to tweet, retrying in 10 seconds.")
+				time.sleep(10)
+
+		elif command == "block":
+			blockee = " ".join(parsed_text).title()
+			if blockee == username:
+				print("Error: You can not block yourself.")
+				continue
+
+			# Repeatedly run the synod algorithm until successful
+			event = InsertBlock(username, blockee)
+			while not proposer.insert_event(event):
+				print("Failure to block, retrying in 10 seconds.")
+				time.sleep(10)
+
+		elif command == "unblock":
+			blockee = " ".join(parsed_text).title()
+			if blockee == username:
+				print("Error: You can not unblock yourself.")
+				continue
+
+			# Repeatedly run the synod algorithm until successful
+			event = DeleteBlock(username, blockee)
+			while not proposer.insert_event(event):
+				print("Failure to unblock, retrying in 10 seconds.")
+				time.sleep(10)
+
+		elif command == "drop":
+			if len(parsed_text) != 2:
+				continue
+			elif not parsed_text[1].isdigit():
+				continue
+			dropee = parsed_text[0].lower()
+			drop_num = int(parsed_text[1])
+			if dropee == "proposer":
+				proposer.drop_messages(drop_num)
+			elif dropee == "acceptor":
+				acceptor.drop_messages(drop_num)
+			elif dropee == "learner":
+				learner.drop_messages(drop_num)
+				
+		elif command == "commands":
+			show_commands(valid_commands)
+
+		elif command == "exit":
+			break
