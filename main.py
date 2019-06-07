@@ -69,18 +69,31 @@ def message_test(proposer):
 	proposer.send_all_learners(message)
 	time.sleep(0.5)
 	print("-" * 120)
+	
+# Get the server ID for the local host
+def get_server_ID(all_servers):
+	ip = socket.gethostbyname(socket.gethostname())
+	for ID in all_servers:
+		if ip == all_servers[ID]["IP"]:
+			return ID
+	return None
 
 if __name__ == "__main__":
+	# Check if all proper input arguments exist
+	if len(sys.argv) != 2:
+		print("Improper number of input arguments")
+		print("USAGE: main.py <Network Hosts File>")
+		sys.exit()
 
 	# Read in command line arguments
-	server_ID = int(sys.argv[1])
-	hosts_filename = sys.argv[2]
+	hosts_filename = sys.argv[1]
 
 	# Parse Config File
 	all_servers = parse_config(hosts_filename)
 	show_server_config(all_servers)
 
 	# Extract username for this server
+	server_ID = get_server_ID(all_servers)
 	username = all_servers[server_ID]["USERNAME"]
 
 	# Initialize the log
