@@ -92,7 +92,7 @@ if __name__ == "__main__":
 	log = log_module.Log(server_ID, all_servers, username)
 
 	# Create proposer
-	proposer = proposer_module.Proposer(server_ID, all_servers, log)
+	proposer = proposer_module.Proposer(server_ID, all_servers, log, True)
 
 	# Message Sending Test
 	# message_test(proposer)
