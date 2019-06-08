@@ -2,7 +2,7 @@
 A decentralized, fault-tolerant, messaging service on AWS using CloudFormation / EC2. By combining the Paxos algorithm with AWS's infrastructure - we were able to create a service that can reach consensus, withstand failures of an availability zone (nodes spread over 3 AZs by default), and recover from data loss and other disasters.
 
 
-## Contributers
+## Contributors
 
 <a href="https://github.com/AndrewAltimit/Distributed-Twitter-Service//graphs/contributors">
   <img src="https://contributors-img.firebaseapp.com/image?repo=AndrewAltimit/Distributed-Twitter-Service/" />
