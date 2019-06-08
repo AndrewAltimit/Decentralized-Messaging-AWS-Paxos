@@ -109,35 +109,35 @@
 				
                 "cd home\n",
                 "cd ec2-user\n",
-                "wget https://github.com/AndrewAltimit/Distributed-Twitter-Service/archive/master.zip\n",
+                "wget https://github.com/AndrewAltimit/Neural-Net-REST-API-AWS/archive/master.zip\n",
                 "unzip master.zip\n",
-				"sudo cp -a /home/ec2-user/Distributed-Twitter-Service-master/. /twitter/\n",
+		"sudo cp -a /home/ec2-user/Neural-Net-REST-API-AWS-master/. /twitter/\n",
                 "cd /twitter/src/\n",
 				
-				"sudo touch /twitter/src/hosts.txt\n",
-				"sudo chmod -R 777 .\n",
+		"sudo touch /twitter/src/hosts.txt\n",
+		"sudo chmod -R 777 .\n",
                 {"Fn::Join": ["", ["sudo echo '", {"Ref": "PrivateIpAddress1"}, " ", {"Ref": "TwitterUsername1"}, " 9021 9022 9023\n", {"Ref": "PrivateIpAddress2"}, " ", {"Ref": "TwitterUsername2"}, " 9021 9022 9023\n", {"Ref": "PrivateIpAddress3"}, " ", {"Ref": "TwitterUsername3"}, " 9021 9022 9023\n' | tee hosts.txt\n"]]},
 				
-				"sudo chmod -R 777 .\n",
+		"sudo chmod -R 777 .\n",
 				
-				"sudo touch /lib/systemd/system/distributedtwitter.service\n",
-				"sudo chmod 777 /lib/systemd/system/distributedtwitter.service\n",
+		"sudo touch /lib/systemd/system/distributedtwitter.service\n",
+		"sudo chmod 777 /lib/systemd/system/distributedtwitter.service\n",
 				
-				"sudo echo -e '[Unit]\n",
-				"Description=Distributed Twitter Service\n",
-				"After=multi-user.target\n",
-				"\n",
-				"[Service]\n",
-				"Type=idle\n",
-				"ExecStart = /usr/bin/python3 /twitter/src/run_server.py\n",
-				"Restart=on-failure\n",
-				"\n",
-				"[Install]\n",
-				"WantedBy=multi-user.target ' >> /lib/systemd/system/distributedtwitter.service\n",
+		"sudo echo -e '[Unit]\n",
+		"Description=Distributed Twitter Service\n",
+		"After=multi-user.target\n",
+		"\n",
+		"[Service]\n",
+		"Type=idle\n",
+		"ExecStart = /usr/bin/python3 /twitter/src/run_server.py\n",
+		"Restart=on-failure\n",
+		"\n",
+		"[Install]\n",
+		"WantedBy=multi-user.target ' >> /lib/systemd/system/distributedtwitter.service\n",
 
-				"sudo systemctl daemon-reload\n",
-				"sudo systemctl enable distributedtwitter.service\n",
-				"sudo systemctl restart distributedtwitter.service\n"
+		"sudo systemctl daemon-reload\n",
+		"sudo systemctl enable distributedtwitter.service\n",
+		"sudo systemctl restart distributedtwitter.service\n"
               ]
             ]
           }
@@ -187,35 +187,35 @@
 				
                 "cd home\n",
                 "cd ec2-user\n",
-                "wget https://github.com/AndrewAltimit/Distributed-Twitter-Service/archive/master.zip\n",
+                "wget https://github.com/AndrewAltimit/Neural-Net-REST-API-AWS/archive/master.zip\n",
                 "unzip master.zip\n",
-				"sudo cp -a /home/ec2-user/Distributed-Twitter-Service-master/. /twitter/\n",
+		"sudo cp -a /home/ec2-user/Neural-Net-REST-API-AWS-master/. /twitter/\n",
                 "cd /twitter/src/\n",
 				
-				"sudo touch /twitter/src/hosts.txt\n",
-				"sudo chmod -R 777 .\n",
+		"sudo touch /twitter/src/hosts.txt\n",
+		"sudo chmod -R 777 .\n",
                 {"Fn::Join": ["", ["sudo echo '", {"Ref": "PrivateIpAddress1"}, " ", {"Ref": "TwitterUsername1"}, " 9021 9022 9023\n", {"Ref": "PrivateIpAddress2"}, " ", {"Ref": "TwitterUsername2"}, " 9021 9022 9023\n", {"Ref": "PrivateIpAddress3"}, " ", {"Ref": "TwitterUsername3"}, " 9021 9022 9023\n' | tee hosts.txt\n"]]},
-				
-				"sudo chmod -R 777 .\n",
-				
-				"sudo touch /lib/systemd/system/distributedtwitter.service\n",
-				"sudo chmod 777 /lib/systemd/system/distributedtwitter.service\n",
-				
-				"sudo echo -e '[Unit]\n",
-				"Description=Distributed Twitter Service\n",
-				"After=multi-user.target\n",
-				"\n",
-				"[Service]\n",
-				"Type=idle\n",
-				"ExecStart = /usr/bin/python3 /twitter/src/run_server.py\n",
-				"Restart=on-failure\n",
-				"\n",
-				"[Install]\n",
-				"WantedBy=multi-user.target ' >> /lib/systemd/system/distributedtwitter.service\n",
 
-				"sudo systemctl daemon-reload\n",
-				"sudo systemctl enable distributedtwitter.service\n",
-				"sudo systemctl restart distributedtwitter.service\n"
+		"sudo chmod -R 777 .\n",
+
+		"sudo touch /lib/systemd/system/distributedtwitter.service\n",
+		"sudo chmod 777 /lib/systemd/system/distributedtwitter.service\n",
+
+		"sudo echo -e '[Unit]\n",
+		"Description=Distributed Twitter Service\n",
+		"After=multi-user.target\n",
+		"\n",
+		"[Service]\n",
+		"Type=idle\n",
+		"ExecStart = /usr/bin/python3 /twitter/src/run_server.py\n",
+		"Restart=on-failure\n",
+		"\n",
+		"[Install]\n",
+		"WantedBy=multi-user.target ' >> /lib/systemd/system/distributedtwitter.service\n",
+
+		"sudo systemctl daemon-reload\n",
+		"sudo systemctl enable distributedtwitter.service\n",
+		"sudo systemctl restart distributedtwitter.service\n"
               ]
             ]
           }
@@ -265,35 +265,35 @@
 				
                 "cd home\n",
                 "cd ec2-user\n",
-                "wget https://github.com/AndrewAltimit/Distributed-Twitter-Service/archive/master.zip\n",
+                "wget https://github.com/AndrewAltimit/Neural-Net-REST-API-AWS/archive/master.zip\n",
                 "unzip master.zip\n",
-				"sudo cp -a /home/ec2-user/Distributed-Twitter-Service-master/. /twitter/\n",
+		"sudo cp -a /home/ec2-user/Neural-Net-REST-API-AWS-master/. /twitter/\n",
                 "cd /twitter/src/\n",
 				
-				"sudo touch /twitter/src/hosts.txt\n",
-				"sudo chmod -R 777 .\n",
+		"sudo touch /twitter/src/hosts.txt\n",
+		"sudo chmod -R 777 .\n",
                 {"Fn::Join": ["", ["sudo echo '", {"Ref": "PrivateIpAddress1"}, " ", {"Ref": "TwitterUsername1"}, " 9021 9022 9023\n", {"Ref": "PrivateIpAddress2"}, " ", {"Ref": "TwitterUsername2"}, " 9021 9022 9023\n", {"Ref": "PrivateIpAddress3"}, " ", {"Ref": "TwitterUsername3"}, " 9021 9022 9023\n' | tee hosts.txt\n"]]},
-				
-				"sudo chmod -R 777 .\n",
-				
-				"sudo touch /lib/systemd/system/distributedtwitter.service\n",
-				"sudo chmod 777 /lib/systemd/system/distributedtwitter.service\n",
-				
-				"sudo echo -e '[Unit]\n",
-				"Description=Distributed Twitter Service\n",
-				"After=multi-user.target\n",
-				"\n",
-				"[Service]\n",
-				"Type=idle\n",
-				"ExecStart = /usr/bin/python3 /twitter/src/run_server.py\n",
-				"Restart=on-failure\n",
-				"\n",
-				"[Install]\n",
-				"WantedBy=multi-user.target ' >> /lib/systemd/system/distributedtwitter.service\n",
 
-				"sudo systemctl daemon-reload\n",
-				"sudo systemctl enable distributedtwitter.service\n",
-				"sudo systemctl restart distributedtwitter.service\n"
+		"sudo chmod -R 777 .\n",
+
+		"sudo touch /lib/systemd/system/distributedtwitter.service\n",
+		"sudo chmod 777 /lib/systemd/system/distributedtwitter.service\n",
+
+		"sudo echo -e '[Unit]\n",
+		"Description=Distributed Twitter Service\n",
+		"After=multi-user.target\n",
+		"\n",
+		"[Service]\n",
+		"Type=idle\n",
+		"ExecStart = /usr/bin/python3 /twitter/src/run_server.py\n",
+		"Restart=on-failure\n",
+		"\n",
+		"[Install]\n",
+		"WantedBy=multi-user.target ' >> /lib/systemd/system/distributedtwitter.service\n",
+
+		"sudo systemctl daemon-reload\n",
+		"sudo systemctl enable distributedtwitter.service\n",
+		"sudo systemctl restart distributedtwitter.service\n"
               ]
             ]
           }
