@@ -34,8 +34,8 @@ Once deployed, you are able to launch the user interface where you can tweet mes
 
 ****Messaging within the Cluster****
 
-    1. SSH to one of the EC2 public IPs using the same Key Pair specified in step 2
-    2. Run the following to switch the server to interactive mode and initiate the messaging client:
+1. SSH to one of the EC2 public IPs using the same Key Pair specified in step 2
+2. Run the following to switch the server to interactive mode and initiate the messaging client:
 
     cd /twitter/src/
     sudo sh run_client.sh
