@@ -83,7 +83,7 @@ def get_server_ID(all_servers):
 
 if __name__ == "__main__":
 	# Read in command line arguments
-	hosts_filename = "/twitter/hosts.txt"
+	hosts_filename = "/twitter/src/hosts.txt"
 
 	# Parse Config File
 	all_servers = parse_config(hosts_filename)
