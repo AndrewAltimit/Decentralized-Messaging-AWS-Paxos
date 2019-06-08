@@ -109,9 +109,9 @@
 				
                 "cd home\n",
                 "cd ec2-user\n",
-                "wget https://github.com/AndrewAltimit/Neural-Net-REST-API-AWS/archive/master.zip\n",
+		"wget https://github.com/AndrewAltimit/Decentralized-Messaging-AWS-Paxos/archive/master.zip\n",
                 "unzip master.zip\n",
-		"sudo cp -a /home/ec2-user/Neural-Net-REST-API-AWS-master/. /twitter/\n",
+		"sudo cp -a /home/ec2-user/Decentralized-Messaging-AWS-Paxos-master/. /twitter/\n",
                 "cd /twitter/src/\n",
 				
 		"sudo touch /twitter/src/hosts.txt\n",
@@ -187,20 +187,20 @@
 				
                 "cd home\n",
                 "cd ec2-user\n",
-                "wget https://github.com/AndrewAltimit/Neural-Net-REST-API-AWS/archive/master.zip\n",
+		"wget https://github.com/AndrewAltimit/Decentralized-Messaging-AWS-Paxos/archive/master.zip\n",
                 "unzip master.zip\n",
-		"sudo cp -a /home/ec2-user/Neural-Net-REST-API-AWS-master/. /twitter/\n",
+		"sudo cp -a /home/ec2-user/Decentralized-Messaging-AWS-Paxos-master/. /twitter/\n",
                 "cd /twitter/src/\n",
 				
 		"sudo touch /twitter/src/hosts.txt\n",
 		"sudo chmod -R 777 .\n",
                 {"Fn::Join": ["", ["sudo echo '", {"Ref": "PrivateIpAddress1"}, " ", {"Ref": "TwitterUsername1"}, " 9021 9022 9023\n", {"Ref": "PrivateIpAddress2"}, " ", {"Ref": "TwitterUsername2"}, " 9021 9022 9023\n", {"Ref": "PrivateIpAddress3"}, " ", {"Ref": "TwitterUsername3"}, " 9021 9022 9023\n' | tee hosts.txt\n"]]},
-
+				
 		"sudo chmod -R 777 .\n",
-
+				
 		"sudo touch /lib/systemd/system/distributedtwitter.service\n",
 		"sudo chmod 777 /lib/systemd/system/distributedtwitter.service\n",
-
+				
 		"sudo echo -e '[Unit]\n",
 		"Description=Distributed Twitter Service\n",
 		"After=multi-user.target\n",
@@ -265,20 +265,20 @@
 				
                 "cd home\n",
                 "cd ec2-user\n",
-                "wget https://github.com/AndrewAltimit/Neural-Net-REST-API-AWS/archive/master.zip\n",
+		"wget https://github.com/AndrewAltimit/Decentralized-Messaging-AWS-Paxos/archive/master.zip\n",
                 "unzip master.zip\n",
-		"sudo cp -a /home/ec2-user/Neural-Net-REST-API-AWS-master/. /twitter/\n",
+		"sudo cp -a /home/ec2-user/Decentralized-Messaging-AWS-Paxos-master/. /twitter/\n",
                 "cd /twitter/src/\n",
 				
 		"sudo touch /twitter/src/hosts.txt\n",
 		"sudo chmod -R 777 .\n",
                 {"Fn::Join": ["", ["sudo echo '", {"Ref": "PrivateIpAddress1"}, " ", {"Ref": "TwitterUsername1"}, " 9021 9022 9023\n", {"Ref": "PrivateIpAddress2"}, " ", {"Ref": "TwitterUsername2"}, " 9021 9022 9023\n", {"Ref": "PrivateIpAddress3"}, " ", {"Ref": "TwitterUsername3"}, " 9021 9022 9023\n' | tee hosts.txt\n"]]},
-
+				
 		"sudo chmod -R 777 .\n",
-
+				
 		"sudo touch /lib/systemd/system/distributedtwitter.service\n",
 		"sudo chmod 777 /lib/systemd/system/distributedtwitter.service\n",
-
+				
 		"sudo echo -e '[Unit]\n",
 		"Description=Distributed Twitter Service\n",
 		"After=multi-user.target\n",
