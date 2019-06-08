@@ -14,9 +14,6 @@ A decentralized, fault-tolerant, messaging service on AWS using CloudFormation /
 * Elastic Compute Cloud (EC2)
 
 
-
-
-
 ## AWS Deployment using CloudFormation
 
 ###### Inside the "AWS Deployment" folder you'll find the CloudFormation template used in the deployment below
@@ -28,7 +25,7 @@ A decentralized, fault-tolerant, messaging service on AWS using CloudFormation /
 
     Default settings provided will deploy in us-west-2a, us-west-2b, us-west-2c using Amazon Linux 2 ami's and give SSH access to all IPs. 
     
-    **It is highly recommended you restrict SSH access to only your public IP**, such as 163.162.122.3.55/32 where 162.122.3.55 is the public IP of the remote user.
+    **It is highly recommended you restrict SSH access to only your public IP**, such as 163.162.122.3.55/32 where 163.162.122.3.55 is the public IP of the remote user.
 
 
 ## Usage
@@ -36,6 +33,7 @@ A decentralized, fault-tolerant, messaging service on AWS using CloudFormation /
 Once deployed, you are able to launch the user interface where you can tweet messages, view timeline, follow/unfollow users, view logs, etc. This interface can be launched from within the cluster or locally on your own machine.
 
 ****Messaging within the Cluster****
+
     1. SSH to one of the EC2 public IPs using the same Key Pair specified in step 2
     2. Run the following to switch the server to interactive mode and initiate the messaging client:
 
