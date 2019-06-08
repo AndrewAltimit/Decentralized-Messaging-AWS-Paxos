@@ -10,9 +10,10 @@ ARRAY_INIT_SIZE = 8
 
 # Acceptor Class
 class Acceptor():
-	def __init__(self, ID, server_config):
+	def __init__(self, ID, server_config, local_run = False):
 		self.ID = ID
 		self.server_config = server_config
+		self.local_run = local_run
 
 		# IP/Port Configuration for this Acceptor
 		self.IP = server_config[ID]["IP"]

@@ -20,11 +20,12 @@ class Proposer():
 		self.ID = ID
 		self.log = log
 		self.server_config = server_config
+		self.local_run = local_run
 
 		# IP/Port Configuration for this Proposer
 		if local_run:
 			self.IP = ''
-			self.port = 9030
+			self.port = 9021
 		else:
 			self.IP = server_config[ID]["IP"]
 			self.port = server_config[ID]["PROPOSER_PORT"]
@@ -124,6 +125,9 @@ class Proposer():
 
 		# Send commit message
 		self.commit(slot, v)
+		
+		#if self.local_run:
+		#	return True
 
 		# Return True / False depending on whether the value commited
 		# was the original event we were trying to insert
@@ -373,6 +377,9 @@ class Proposer():
 			dest_ip = self.server_config[ID]["IP"]
 			dest_port = self.server_config[ID]["LEARNER_PORT"]
 			self.send_msg(dest_ip, dest_port, message)
+			
+		if self.local_run:
+			self.send_msg('127.0.0.1', 9023, message)
 
 	# Garbage Collection for Message Buffer
 	def message_buffer_garbage_collector(self):

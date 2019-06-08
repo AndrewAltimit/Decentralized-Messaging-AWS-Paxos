@@ -7,10 +7,11 @@ from event_module import *
 
 # Learner Class
 class Learner():
-	def __init__(self, ID, server_config, log):
+	def __init__(self, ID, server_config, log, local_run = False):
 		self.ID = ID
 		self.server_config = server_config
 		self.log = log
+		self.local_run = local_run
 
 		# IP/Port Configuration for this Learner
 		self.IP = server_config[ID]["IP"]
