@@ -100,7 +100,7 @@ if __name__ == "__main__":
 	learner = learner_module.Learner(1, all_servers, log)
 
 	# GUI - Terminate on Quit/Exit Command
-	valid_commands = ["tweet", "block", "unblock", "view", "blocklist", "log", "servers", "drop", "commands", "exit"]
+	valid_commands = ["tweet", "block", "unblock", "view", "blocklist", "log", "servers", "drop", "exit"]
 	while True:
 		proposer.update_log()
 		show_commands(valid_commands)
@@ -117,12 +117,15 @@ if __name__ == "__main__":
 
 		elif command == "servers":
 			show_server_config(all_servers)
+			input()
 
 		elif command == "view":
 			log.view_timeline()
+			input()
 
 		elif command == "log":
 			log.view_log()
+			input()
 
 		elif command == "blocklist":
 			log.view_blocklist()
@@ -172,8 +175,5 @@ if __name__ == "__main__":
 			elif dropee == "learner":
 				learner.drop_messages(drop_num)
 				
-		elif command == "commands":
-			show_commands(valid_commands)
-
 		elif command == "exit":
 			break
