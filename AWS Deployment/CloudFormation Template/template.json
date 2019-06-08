@@ -20,19 +20,16 @@
       "Description": "Twitter Username for the first EC2 instance",
       "Type": "String",
       "Default": "Andrew"
-      ]
     },
 	"TwitterUsername2": {
       "Description": "Twitter Username for the second EC2 instance",
       "Type": "String",
-      "Default": "Andrew"
-      ]
+      "Default": "Yi"
     },
 	"TwitterUsername3": {
       "Description": "Twitter Username for the third EC2 instance",
       "Type": "String",
-      "Default": "Andrew"
-      ]
+      "Default": "Dylan"
     },
 	"PrivateIpAddress1": {
       "Description": "The IP address for the first EC2 instance",
@@ -118,7 +115,7 @@
 				
 				"sudo touch /twitter/src/hosts.txt\n",
 				"sudo chmod -R 777 .\n",
-                {"Fn::Join": ["", ["sudo echo '", {"Ref": "PrivateIpAddress1"}, " Andrew 9021 9022 9023\n", {"Ref": "PrivateIpAddress2"}, " Dylan 9021 9022 9023\n", {"Ref": "PrivateIpAddress3"}, " Yi 9021 9022 9023\n' | tee hosts.txt\n"]]},
+                {"Fn::Join": ["", ["sudo echo '", {"Ref": "PrivateIpAddress1"}, " ", {"Ref": "TwitterUsername1"}, " 9021 9022 9023\n", {"Ref": "PrivateIpAddress2"}, " ", {"Ref": "TwitterUsername2"}, " 9021 9022 9023\n", {"Ref": "PrivateIpAddress3"}, " ", {"Ref": "TwitterUsername3"}, " 9021 9022 9023\n' | tee hosts.txt\n"]]},
 				
 				"sudo chmod -R 777 .\n",
 				
@@ -195,7 +192,7 @@
 				
 				"sudo touch /twitter/src/hosts.txt\n",
 				"sudo chmod -R 777 .\n",
-                {"Fn::Join": ["", ["sudo echo '", {"Ref": "PrivateIpAddress1"}, " Andrew 9021 9022 9023\n", {"Ref": "PrivateIpAddress2"}, " Dylan 9021 9022 9023\n", {"Ref": "PrivateIpAddress3"}, " Yi 9021 9022 9023\n' | tee hosts.txt\n"]]},
+                {"Fn::Join": ["", ["sudo echo '", {"Ref": "PrivateIpAddress1"}, " ", {"Ref": "TwitterUsername1"}, " 9021 9022 9023\n", {"Ref": "PrivateIpAddress2"}, " ", {"Ref": "TwitterUsername2"}, " 9021 9022 9023\n", {"Ref": "PrivateIpAddress3"}, " ", {"Ref": "TwitterUsername3"}, " 9021 9022 9023\n' | tee hosts.txt\n"]]},
 				
 				"sudo chmod -R 777 .\n",
 				
@@ -272,7 +269,7 @@
 				
 				"sudo touch /twitter/src/hosts.txt\n",
 				"sudo chmod -R 777 .\n",
-                {"Fn::Join": ["", ["sudo echo '", {"Ref": "PrivateIpAddress1"}, " Andrew 9021 9022 9023\n", {"Ref": "PrivateIpAddress2"}, " Dylan 9021 9022 9023\n", {"Ref": "PrivateIpAddress3"}, " Yi 9021 9022 9023\n' | tee hosts.txt\n"]]},
+                {"Fn::Join": ["", ["sudo echo '", {"Ref": "PrivateIpAddress1"}, " ", {"Ref": "TwitterUsername1"}, " 9021 9022 9023\n", {"Ref": "PrivateIpAddress2"}, " ", {"Ref": "TwitterUsername2"}, " 9021 9022 9023\n", {"Ref": "PrivateIpAddress3"}, " ", {"Ref": "TwitterUsername3"}, " 9021 9022 9023\n' | tee hosts.txt\n"]]},
 				
 				"sudo chmod -R 777 .\n",
 				
