@@ -36,7 +36,7 @@
       "Type": "String",
       "MinLength": "7",
       "MaxLength": "15",
-      "Default": "172.31.17.62",
+      "Default": "172.31.32.50",
       "ConstraintDescription": "must be a valid IP in the form of x.x.x.x"
     },
 	"PrivateIpAddress2": {
@@ -44,7 +44,7 @@
       "Type": "String",
       "MinLength": "7",
       "MaxLength": "15",
-      "Default": "172.31.17.63",
+      "Default": "172.31.16.50",
       "ConstraintDescription": "must be a valid IP in the form of x.x.x.x"
     },
 	"PrivateIpAddress3": {
@@ -52,7 +52,7 @@
       "Type": "String",
       "MinLength": "7",
       "MaxLength": "15",
-      "Default": "172.31.17.64",
+      "Default": "172.31.0.50",
       "ConstraintDescription": "must be a valid IP in the form of x.x.x.x"
     },
     "SSHLocation": {
@@ -97,6 +97,7 @@
         "KeyName": {
           "Ref": "KeyName"
         },
+		"AvailabilityZone": "us-west-2a",
         "PrivateIpAddress": {"Ref": "PrivateIpAddress1"},
         "UserData": {
           "Fn::Base64": {
@@ -174,6 +175,7 @@
         "KeyName": {
           "Ref": "KeyName"
         },
+		"AvailabilityZone": "us-west-2b",
         "PrivateIpAddress": {"Ref": "PrivateIpAddress2"},
         "UserData": {
           "Fn::Base64": {
@@ -251,6 +253,7 @@
         "KeyName": {
           "Ref": "KeyName"
         },
+		"AvailabilityZone": "us-west-2c",
         "PrivateIpAddress": {"Ref": "PrivateIpAddress3"},
         "UserData": {
           "Fn::Base64": {

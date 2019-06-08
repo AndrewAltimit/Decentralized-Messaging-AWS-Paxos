@@ -108,7 +108,7 @@ if __name__ == "__main__":
 	valid_commands = ["tweet", "block", "unblock", "view", "blocklist", "log", "servers", "drop", "commands", "exit"]
 	show_commands(valid_commands)
 	while True:
-		text = input("Server {} => ".format(server_ID))
+		text = input("{{}} Message => ".format(username))
 		if text.strip() == "":
 			continue
 
