@@ -16,6 +16,24 @@
       ],
       "ConstraintDescription": "must be a valid EC2 instance type."
     },
+	"TwitterUsername1": {
+      "Description": "Twitter Username for the first EC2 instance",
+      "Type": "String",
+      "Default": "Andrew"
+      ]
+    },
+	"TwitterUsername2": {
+      "Description": "Twitter Username for the second EC2 instance",
+      "Type": "String",
+      "Default": "Andrew"
+      ]
+    },
+	"TwitterUsername3": {
+      "Description": "Twitter Username for the third EC2 instance",
+      "Type": "String",
+      "Default": "Andrew"
+      ]
+    },
 	"PrivateIpAddress1": {
       "Description": "The IP address for the first EC2 instance",
       "Type": "String",
@@ -25,7 +43,7 @@
       "ConstraintDescription": "must be a valid IP in the form of x.x.x.x"
     },
 	"PrivateIpAddress2": {
-      "Description": "The IP address for the first EC2 instance",
+      "Description": "The IP address for the second EC2 instance",
       "Type": "String",
       "MinLength": "7",
       "MaxLength": "15",
@@ -33,7 +51,7 @@
       "ConstraintDescription": "must be a valid IP in the form of x.x.x.x"
     },
 	"PrivateIpAddress3": {
-      "Description": "The IP address for the first EC2 instance",
+      "Description": "The IP address for the third EC2 instance",
       "Type": "String",
       "MinLength": "7",
       "MaxLength": "15",

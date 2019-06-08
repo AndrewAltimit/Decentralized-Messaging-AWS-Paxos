@@ -24,9 +24,9 @@ def parse_config(hosts_file):
 		server_dict = dict()
 		server_dict["IP"] = parsed_config[0]
 		server_dict["USERNAME"] = "NA"
-		server_dict["PROPOSER_PORT"] = int(parsed_config[2])
-		server_dict["ACCEPTOR_PORT"] = int(parsed_config[3])
-		server_dict["LEARNER_PORT"] = int(parsed_config[4])
+		server_dict["PROPOSER_PORT"] = int(parsed_config[1])
+		server_dict["ACCEPTOR_PORT"] = int(parsed_config[2])
+		server_dict["LEARNER_PORT"] = int(parsed_config[3])
 		all_servers[ID] = server_dict
 		ID+=1
 	file.close()
