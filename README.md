@@ -53,3 +53,5 @@ Once deployed, you are able to launch the user interface where you can tweet mes
 
 3. Navigate to the src directory and launch message.py to initiate the messaging client.
 
+Ensure that your machine has port 9030 open as this is the port the servers will attempt to communicate to you on.
+
