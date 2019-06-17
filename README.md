@@ -5,7 +5,7 @@ A decentralized, fault-tolerant, messaging service on AWS using CloudFormation /
 ## Contributors
 
 <a href="https://github.com/AndrewAltimit/Distributed-Twitter-Service//graphs/contributors">
-  <img src="https://contributors-img.firebaseapp.com/image?repo=AndrewAltimit/Distributed-Twitter-Service/" />
+  <img src="contributors.png" />
 </a>
 
 
