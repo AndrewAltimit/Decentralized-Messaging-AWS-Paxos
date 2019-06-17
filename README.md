@@ -4,7 +4,7 @@ A decentralized, fault-tolerant, messaging service on AWS using CloudFormation /
 
 ## Contributors
 
-<a href="https://github.com/AndrewAltimit/Distributed-Twitter-Service//graphs/contributors">
+<a href="https://github.com/AndrewAltimit/Decentralized-Messaging-AWS-Paxos/graphs/contributors">
   <img src="contributors.png" />
 </a>
 
